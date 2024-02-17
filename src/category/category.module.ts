@@ -1,9 +1,10 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { ClassCategory, Level, Subject } from './entities';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { ClassCategoryController } from './category.controller';
 import { ClassCategoryService } from './category.service';
+import { ClassCategoryRepository, LevelRepository, SubjectRepository } from './repositories';
 
 const entities = [
   Level,
@@ -11,6 +12,7 @@ const entities = [
   ClassCategory,
 ]
 
+@Global()
 @Module({
   imports: [
     TypeOrmModule.forFeature(entities),
@@ -29,6 +31,12 @@ const entities = [
   ],
   providers: [
     ClassCategoryService,
+    ClassCategoryRepository,
+    SubjectRepository,
+    LevelRepository,
+  ],
+  exports: [
+    ClassCategoryRepository,
   ]
 })
 export class CategoryModule { }

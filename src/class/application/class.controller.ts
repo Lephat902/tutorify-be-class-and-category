@@ -15,27 +15,37 @@ export class ClassController {
     return this.classService.addClass(studentId, classData);
   }
 
-  @MessagePattern({ cmd: 'removeClass' })
-  async removeClass(id: string): Promise<void> {
-    return this.classService.removeClass(id);
+  @MessagePattern({ cmd: 'deleteClassById' })
+  async deleteClassById(id: string): Promise<void> {
+    return this.classService.deleteClassById(id);
   }
 
   @MessagePattern({ cmd: 'updateClass' })
-  async updateClass(data: { id: string; classData: ClassCreateUpdateDto }): Promise<Class> {
+  async updateClass(data: { id: string; classData: Partial<ClassCreateUpdateDto> }): Promise<Class> {
     const { id, classData } = data;
     return this.classService.updateClass(id, classData);
   }
 
-  @MessagePattern({ cmd: 'getClassByStudentId' })
-  async getClassByStudentId(data: { studentId: string, filters: ClassQueryDto}): Promise<Class[]> {
-    const { studentId, filters } = data;
-    console.log(studentId);
-    return this.classService.getClassByStudentId(studentId, filters);
+  @MessagePattern({ cmd: 'getClassById' })
+  async getClassById(id: string): Promise<Class> {
+    return this.classService.getClassById(id);
   }
 
-  @MessagePattern({ cmd: 'getClassByTutorId' })
-  async getClassByTutorId(data: { tutorId: string, filters: ClassQueryDto}): Promise<Class[]> {
+  @MessagePattern({ cmd: 'getClasses' })
+  async getClasses(data: { filters: ClassQueryDto }): Promise<Class[]> {
+    const { filters } = data;
+    return this.classService.getClasses(filters);
+  }
+
+  @MessagePattern({ cmd: 'getClassesByStudentId' })
+  async getClassesByStudentId(data: { studentId: string, filters: ClassQueryDto }): Promise<Class[]> {
+    const { studentId, filters } = data;
+    return this.classService.getClassesByStudentId(studentId, filters);
+  }
+
+  @MessagePattern({ cmd: 'getClassesByTutorId' })
+  async getClassesByTutorId(data: { tutorId: string, filters: ClassQueryDto }): Promise<Class[]> {
     const { tutorId, filters } = data;
-    return this.classService.getClassByTutorId(tutorId, filters);
+    return this.classService.getClassesByTutorId(tutorId, filters);
   }
 }

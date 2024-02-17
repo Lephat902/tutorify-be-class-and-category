@@ -1,17 +1,13 @@
 import { ConflictException, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { ClassCategory, Level, Subject } from './entities';
+import { ClassCategoryRepository, LevelRepository, SubjectRepository } from './repositories';
 
 @Injectable()
 export class ClassCategoryService {
     constructor(
-        @InjectRepository(ClassCategory)
-        private classCategoryRepository: Repository<ClassCategory>,
-        @InjectRepository(Level)
-        private levelRepository: Repository<Level>,
-        @InjectRepository(Subject)
-        private subjectRepository: Repository<Subject>,
+        private readonly classCategoryRepository: ClassCategoryRepository,
+        private readonly levelRepository: LevelRepository,
+        private readonly subjectRepository: SubjectRepository,
     ) { }
 
     findAll(): Promise<ClassCategory[]> {
