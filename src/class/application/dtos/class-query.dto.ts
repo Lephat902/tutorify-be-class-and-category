@@ -4,6 +4,10 @@ import { ClassOrderBy } from './enums';
 class ClassQueryDto {
     readonly q?: string;
     readonly order?: ClassOrderBy;
+    readonly classCategoryIds?: string[];
+    readonly subjectIds?: string[];
+    readonly levelIds?: string[];
+    readonly includeHidden?: boolean;
 }
 
 interface ClassQueryDto extends PaginationDto, SortingDirectionDto { }

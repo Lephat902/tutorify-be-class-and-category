@@ -1,7 +1,11 @@
-import { GetClassByStudentIdHandler } from './get-class-by-student-id.handler';
-import { GetClassByTutorIdHandler } from './get-class-by-tutor-id.handler';
+import { GetClassesByStudentIdHandler } from './get-classes-by-student-id.handler';
+import { GetClassesByTutorIdHandler } from './get-classes-by-tutor-id.handler';
+import { GetClassesHandler } from './get-classes.handler';
+import { GetClassByIdHandler } from './get-class-by-id.handler';
 
 export const QueryHandlers = [
-    GetClassByStudentIdHandler,
-    GetClassByTutorIdHandler,
+    GetClassByIdHandler,
+    GetClassesHandler,
+    GetClassesByStudentIdHandler,
+    GetClassesByTutorIdHandler,
 ]

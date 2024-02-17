@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ClassCreateUpdateDto } from './dtos';
 import { Class } from '../infrastructure/entities';
-import { CreateClassCommand } from './commands/impl';
-import { DeleteClassCommand } from './commands/impl/delete-class.command';
+import { CreateClassCommand, UpdateClassCommand } from './commands/impl';
+import { DeleteClassByIdCommand } from './commands/impl/delete-class-by-id.command';
 import { ClassQueryDto } from './dtos/class-query.dto';
-import { GetClassByStudentIdQuery, GetClassByTutorIdQuery } from './queries/impl';
+import { GetClassByIdQuery, GetClassesByStudentIdQuery, GetClassesByTutorIdQuery, GetClassesQuery } from './queries/impl';
 
 @Injectable()
 export class ClassService {
@@ -18,19 +18,27 @@ export class ClassService {
     return this.commandBus.execute(new CreateClassCommand(studentId, classData));
   }
 
-  async removeClass(id: string): Promise<void> {
-    return this.commandBus.execute(new DeleteClassCommand(id));
+  async deleteClassById(id: string): Promise<void> {
+    return this.commandBus.execute(new DeleteClassByIdCommand(id));
   }
 
-  async updateClass(id: string, classData: ClassCreateUpdateDto ): Promise<Class> {
-    return this.commandBus.execute(new CreateClassCommand(id, classData));
+  async updateClass(id: string, classData: Partial<ClassCreateUpdateDto>): Promise<Class> {
+    return this.commandBus.execute(new UpdateClassCommand(id, classData));
   }
 
-  async getClassByStudentId(studentId: string, filters: ClassQueryDto): Promise<Class[]> {
-    return this.queryBus.execute(new GetClassByStudentIdQuery(studentId, filters));
+  async getClassById(id: string): Promise<Class> {
+    return this.queryBus.execute(new GetClassByIdQuery(id));
   }
 
-  async getClassByTutorId(tutorId: string, filters: ClassQueryDto): Promise<Class[]> {
-    return this.queryBus.execute(new GetClassByTutorIdQuery(tutorId, filters));
+  async getClasses(filters: ClassQueryDto): Promise<Class[]> {
+    return this.queryBus.execute(new GetClassesQuery(filters));
+  }
+
+  async getClassesByStudentId(studentId: string, filters: ClassQueryDto): Promise<Class[]> {
+    return this.queryBus.execute(new GetClassesByStudentIdQuery(studentId, filters));
+  }
+
+  async getClassesByTutorId(tutorId: string, filters: ClassQueryDto): Promise<Class[]> {
+    return this.queryBus.execute(new GetClassesByTutorIdQuery(tutorId, filters));
   }
 }
