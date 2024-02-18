@@ -1,11 +1,11 @@
 import { Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Class } from './entities';
+import { Class, ClassTimeSlot } from './entities';
 import { ClassRepository } from './repositories';
 import { entities as categoryEntities } from 'src/category/entities';
 
-const entities = [Class, ...categoryEntities];
+const entities = [Class, ClassTimeSlot, ...categoryEntities];
 
 @Global()
 @Module({

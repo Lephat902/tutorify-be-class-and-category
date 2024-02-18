@@ -1,4 +1,10 @@
-import { GenderPref, TutorPositionPref } from './enums';
+import { GenderPref, TutorPositionPref, Weekday } from '@tutorify/shared';
+
+class ClassTimeSlotDto {
+    startTime: string;
+    endTime: string;
+    weekday: Weekday;
+}
 
 export class ClassCreateUpdateDto {
     classCategoryIds: string[];
@@ -13,4 +19,5 @@ export class ClassCreateUpdateDto {
     studentQty: number;
     tutorPositionPref?: TutorPositionPref;
     tutorGenderPref?: GenderPref;
+    timeSlots: ClassTimeSlotDto[];
 }
