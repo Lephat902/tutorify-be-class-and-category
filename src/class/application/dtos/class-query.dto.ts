@@ -1,5 +1,4 @@
-import { PaginationDto, SortingDirectionDto , applyMixins } from '@tutorify/shared';
-import { ClassOrderBy } from './enums';
+import { PaginationDto, SortingDirectionDto, applyMixins, ClassOrderBy } from '@tutorify/shared';
 
 class ClassQueryDto {
     readonly q?: string;

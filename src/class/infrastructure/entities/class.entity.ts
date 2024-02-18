@@ -1,8 +1,9 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, JoinTable, CreateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, JoinTable, CreateDateColumn, OneToMany } from 'typeorm';
 import { Geometry } from 'geojson';
 import { ClassCategory } from 'src/category/entities';
-import { GenderPref, TutorPositionPref } from '../enums';
+import { GenderPref, TutorPositionPref } from '@tutorify/shared';
 import { Exclude } from 'class-transformer';
+import { ClassTimeSlot } from './class-timeslot.entity';
 
 @Entity()
 export class Class {
@@ -32,10 +33,10 @@ export class Class {
     @Column({ default: '' })
     requirement: string;
 
-    @Column({ nullable: true })
+    @Column({ type: 'date', nullable: true })
     startDate: Date;
 
-    @Column({ nullable: true })
+    @Column({ type: 'date', nullable: true })
     endDate: Date;
 
     @Column({ nullable: true })
@@ -62,4 +63,7 @@ export class Class {
 
     @Column({ type: 'enum', enum: GenderPref, default: GenderPref.NOT_REQUIRED })
     tutorGenderPref: GenderPref;
+
+    @OneToMany(() => ClassTimeSlot, timeSlot => timeSlot.class, { cascade: true, eager: true })
+    timeSlots: ClassTimeSlot[];
 }
