@@ -15,7 +15,6 @@ export class UpdateClassHandler implements ICommandHandler<UpdateClassCommand> {
 
     async execute(command: UpdateClassCommand): Promise<Class> {
         const { id, updateClassDto } = command;
-        const { classCategoryIds, isOnline, address, wardId } = updateClassDto;
 
         // Fetch the existing class
         const existingClass = await this.classRepository.findOneBy({ id });
@@ -24,13 +23,20 @@ export class UpdateClassHandler implements ICommandHandler<UpdateClassCommand> {
         }
 
         // If classCategoryIds are provided, fetch ClassCategory entities
-        if (classCategoryIds) {
-            existingClass.classCategories = await validateAndFetchCategories(this.classCategoryRepository, classCategoryIds);
+        if (updateClassDto?.classCategoryIds) {
+            existingClass.classCategories = await validateAndFetchCategories(this.classCategoryRepository, updateClassDto.classCategoryIds);
         }
 
         // If isOnline is false, check if address and wardId are provided
-        if (isOnline === false && (!address || !wardId)) {
+        if (updateClassDto?.isOnline === false && (!updateClassDto?.address || !updateClassDto?.wardId)) {
             throw new BadRequestException('Address and wardId are required for offline classes.');
+        }
+
+        // If tutorId is provided, ensure that this class has no tutor first
+        if (updateClassDto?.tutorId) {
+            if (existingClass.tutorId) {
+                throw new BadRequestException('This class already has a tutor.');
+            }
         }
 
         // Update the class with the provided data
