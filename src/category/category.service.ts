@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { ClassCategory, Level, Subject } from './entities';
 import { ClassCategoryRepository, LevelRepository, SubjectRepository } from './repositories';
 
@@ -41,29 +41,37 @@ export class ClassCategoryService {
     }
 
     async insert(levelDto: Level, subjectDto: Subject): Promise<ClassCategory> {
-        let level = await this.levelRepository.findOne({ where: { name: levelDto.name } });
-        if (!level) {
-            level = this.levelRepository.create(levelDto);
-            level = await this.levelRepository.save(level);
-        }
-
-        let subject = await this.subjectRepository.findOne({ where: { name: subjectDto.name } });
-        if (!subject) {
-            subject = this.subjectRepository.create(subjectDto);
-            subject = await this.subjectRepository.save(subject);
-        }
+        const level = await this.findOrCreateEntity(levelDto, this.levelRepository);
+        const subject = await this.findOrCreateEntity(subjectDto, this.subjectRepository);
 
         const existingCategory = await this.classCategoryRepository.findOne({ where: { level, subject } });
 
         if (existingCategory) {
-            throw new ConflictException('Class category with this level and subject already exists');
+            throw new ConflictException(`Class category ${subject.name} - ${level.name} already exists`);
         }
 
-        const classCategory = this.classCategoryRepository.create({
-            level,
-            subject,
-        });
+        const classCategory = this.classCategoryRepository.create({ level, subject });
 
         return this.classCategoryRepository.save(classCategory);
+    }
+
+    private async findOrCreateEntity(
+        entityDto: Level | Subject,
+        entityRepository: LevelRepository | SubjectRepository
+    ): Promise<Level | Subject> {
+        let entity: any;
+        if (entityDto?.id) {
+            entity = await entityRepository.findOne({ where: { id: entityDto.id } });
+            if (!entity) {
+                throw new NotFoundException(`Entity with ${entityDto.id} not found`);
+            }
+        } else if (entityDto?.name) {
+            entity = await entityRepository.findOne({ where: { name: entityDto.name } });
+            if (!entity) {
+                entity = entityRepository.create({ name: entityDto.name });
+                entity = await entityRepository.save(entity);
+            }
+        }
+        return entity;
     }
 }

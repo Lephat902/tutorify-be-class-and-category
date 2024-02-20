@@ -21,4 +21,5 @@ export class ClassCreateUpdateDto {
     tutorGenderPref?: GenderPref;
     timeSlots: ClassTimeSlotDto[];
     tutorId?: string;
+    desiredTutorIds: string[];
 }

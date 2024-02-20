@@ -2,10 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ClassCreateUpdateDto } from './dtos';
 import { Class } from '../infrastructure/entities';
-import { CreateClassCommand, UpdateClassCommand } from './commands/impl';
+import { UpdateClassCommand } from './commands/impl';
 import { DeleteClassByIdCommand } from './commands/impl/delete-class-by-id.command';
 import { ClassQueryDto } from './dtos/class-query.dto';
 import { GetClassByIdQuery, GetClassesByStudentIdQuery, GetClassesByTutorIdQuery, GetClassesQuery } from './queries/impl';
+import { CreateClassSaga } from './sagas/impl';
 
 @Injectable()
 export class ClassService {
@@ -15,7 +16,7 @@ export class ClassService {
   ) { }
 
   async addClass(studentId: string, classData: ClassCreateUpdateDto): Promise<Class> {
-    return this.commandBus.execute(new CreateClassCommand(studentId, classData));
+    return this.commandBus.execute(new CreateClassSaga(studentId, classData));
   }
 
   async deleteClassById(id: string): Promise<void> {

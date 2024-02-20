@@ -4,7 +4,7 @@ import { ClassRepository } from 'src/class/infrastructure/repositories';
 import { BadRequestException } from '@nestjs/common';
 import { ClassCategoryRepository } from 'src/category/repositories';
 import { Class } from 'src/class/infrastructure/entities';
-import { validateAndFetchCategories } from './helpers';
+import { validateAndFetchCategories } from '../../helpers';
 
 @CommandHandler(UpdateClassCommand)
 export class UpdateClassHandler implements ICommandHandler<UpdateClassCommand> {
