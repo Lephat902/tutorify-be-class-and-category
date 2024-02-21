@@ -50,6 +50,15 @@ COPY --chown=node:node . .
 # the 'npm ci' cmd requires root access
 USER root
 
+# Switch to shared dir
+WORKDIR /usr/src/shared
+
+# Install packages
+RUN npm ci --only=production && npm cache clean --force
+
+# Switch back to app dir
+WORKDIR /usr/src/app
+
 # Run the build command which creates the production bundle
 RUN npm run build
 
@@ -59,7 +68,6 @@ ENV NODE_ENV production
 # Running `npm ci` removes the existing node_modules directory and passing in --only=production ensures that only the production dependencies are installed. This ensures that the node_modules directory is AS optimized AS possible
 RUN npm ci --only=production && npm cache clean --force
 
-# Return to node user from root
 USER node
 
 ###################

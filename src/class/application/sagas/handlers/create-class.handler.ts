@@ -4,7 +4,7 @@ import { BadRequestException, Inject } from '@nestjs/common';
 import { ClassCategoryRepository } from 'src/category/repositories';
 import { validateAndFetchCategories } from '../../helpers';
 import { ClientProxy } from '@nestjs/microservices';
-import { DesignateTutorsToClassDto } from '@tutorify/shared';
+import { DesignateTutorsToClassDto, QueueNames } from '@tutorify/shared';
 import { firstValueFrom } from 'rxjs';
 import { Builder, Saga } from 'nestjs-saga';
 import { CreateClassSaga } from '../impl';
@@ -17,7 +17,7 @@ export class CreateClassSagaHandler {
     constructor(
         private readonly classRepository: ClassRepository,
         private readonly classCategoryRepository: ClassCategoryRepository,
-        @Inject('TUTOR_APPLY_FOR_CLASS_SERVICE')
+        @Inject(QueueNames.TUTOR_APPLY_FOR_CLASS)
         private readonly client: ClientProxy,
     ) { }
     private savedClass: Class;
