@@ -10,7 +10,7 @@ async function bootstrap() {
     transport: Transport.RMQ,
     options: {
       urls: [process.env.RABBITMQ_URI],
-      queue: QueueNames.TUTOR_APPLY_FOR_CLASS,
+      queue: QueueNames.CLASS_AND_CATEGORY,
       queueOptions: {
         durable: false
       }
