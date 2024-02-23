@@ -7,6 +7,7 @@ import { DeleteClassByIdCommand } from './commands/impl/delete-class-by-id.comma
 import { ClassQueryDto } from './dtos/class-query.dto';
 import { GetClassByIdQuery, GetClassesByStudentIdQuery, GetClassesByTutorIdQuery, GetClassesQuery } from './queries/impl';
 import { CreateClassSaga } from './sagas/impl';
+import { GetClassesByUserIdQuery } from './queries/impl/get-classes-by-user-id.query';
 
 @Injectable()
 export class ClassService {
@@ -41,5 +42,9 @@ export class ClassService {
 
   async getClassesByTutorId(tutorId: string, filters: ClassQueryDto): Promise<Class[]> {
     return this.queryBus.execute(new GetClassesByTutorIdQuery(tutorId, filters));
+  }
+
+  async getClassesByUserId(userId: string, filters: ClassQueryDto): Promise<Class[]> {
+    return this.queryBus.execute(new GetClassesByUserIdQuery(userId, filters));
   }
 }

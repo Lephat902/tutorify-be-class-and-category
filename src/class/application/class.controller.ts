@@ -48,4 +48,10 @@ export class ClassController {
     const { tutorId, filters } = data;
     return this.classService.getClassesByTutorId(tutorId, filters);
   }
+
+  @MessagePattern({ cmd: 'getClassesByUserId' })
+  async getClassesByUserId(data: { userId: string, filters: ClassQueryDto }): Promise<Class[]> {
+    const { userId, filters } = data;
+    return this.classService.getClassesByUserId(userId, filters);
+  }
 }
