@@ -14,6 +14,10 @@ export class ClassCategoryService {
         return this.classCategoryRepository.find();
     }
 
+    getCategoryById(id: string) {
+        return this.classCategoryRepository.findOneBy({ id });
+    }
+
     findAllSubjects(): Promise<Subject[]> {
         return this.subjectRepository.find();
     }

@@ -29,7 +29,8 @@ export class ClassRepository extends Repository<Class> {
         return this.dataSource.createQueryBuilder(Class, 'class')
             .leftJoinAndSelect('class.classCategories', 'classCategories')
             .leftJoinAndSelect('classCategories.subject', 'subject')
-            .leftJoinAndSelect('classCategories.level', 'level');
+            .leftJoinAndSelect('classCategories.level', 'level')
+            .leftJoinAndSelect('class.timeSlots', 'timeSlots');
     }
 
     private applyAdditionalFilters(query: SelectQueryBuilder<Class>, filters: ClassQueryDto) {

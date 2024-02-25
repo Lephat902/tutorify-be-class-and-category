@@ -16,7 +16,7 @@ export class Class {
     @Column({ nullable: true })
     tutorId: string;
 
-    @ManyToMany(() => ClassCategory)
+    @ManyToMany(() => ClassCategory, { eager: true })
     @JoinTable({ name: 'class_is_of_category' })
     classCategories: ClassCategory[];
 
