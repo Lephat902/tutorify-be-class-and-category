@@ -15,7 +15,7 @@ export class ClassTimeSlot {
     @Column({ type: 'time', nullable: false })
     endTime: Date;
 
-    @Column({ nullable: false })
+    @Column({ type: 'enum', enum: Weekday, nullable: false })
     weekday: Weekday;
 
     @ManyToOne(() => Class, classEntity => classEntity.timeSlots, { nullable: false, onDelete: 'CASCADE' })

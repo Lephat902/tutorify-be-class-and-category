@@ -12,6 +12,11 @@ export class ClassCategoryController {
         return this.classCategoryService.findAll();
     }
 
+    @MessagePattern({ cmd: 'get_category_by_id' })
+    getCategoryById(id: string): Promise<ClassCategory> {
+        return this.classCategoryService.getCategoryById(id);
+    }
+
     @MessagePattern({ cmd: 'get_all_subjects' })
     getAllSubjects(): Promise<Subject[]> {
         return this.classCategoryService.findAllSubjects();
