@@ -4,10 +4,11 @@ import { BadRequestException, Inject } from '@nestjs/common';
 import { ClassCategoryRepository } from 'src/category/repositories';
 import { validateAndFetchCategories } from '../../helpers';
 import { ClientProxy } from '@nestjs/microservices';
-import { DesignateTutorsToClassDto, QueueNames } from '@tutorify/shared';
+import { BroadcastService, ClassCreatedEvent, ClassCreatedEventPayload, DesignateTutorsToClassDto, QueueNames } from '@tutorify/shared';
 import { firstValueFrom } from 'rxjs';
-import { Builder, Saga } from 'nestjs-saga';
+import { Builder as SagaBuilder, Saga } from 'nestjs-saga';
 import { CreateClassSaga } from '../impl';
+import { Builder } from 'builder-pattern';
 
 // If step throws error then compensation chain is started in a reverse order:
 // step1 -> step2 -> step3(X) -> compensation2 -> compensation1
@@ -19,10 +20,11 @@ export class CreateClassSagaHandler {
         private readonly classCategoryRepository: ClassCategoryRepository,
         @Inject(QueueNames.TUTOR_APPLY_FOR_CLASS)
         private readonly client: ClientProxy,
+        private readonly broadcastService: BroadcastService,
     ) { }
     private savedClass: Class;
 
-    saga = new Builder<CreateClassSaga, Class>()
+    saga = new SagaBuilder<CreateClassSaga, Class>()
 
         .step('Validate and insert class')
         .invoke(this.step1)
@@ -30,6 +32,9 @@ export class CreateClassSagaHandler {
 
         .step('Insert desired tutors')
         .invoke(this.step2)
+
+        .step('Dispatch class-created event')
+        .invoke(this.step3)
 
         .return(this.buildResult)
 
@@ -64,6 +69,14 @@ export class CreateClassSagaHandler {
             }
             await firstValueFrom(this.client.send({ cmd: 'designateTutors' }, designateTutorsDto));
         }
+    }
+
+    step3(cmd: CreateClassSaga) {
+        const eventPayload = Builder<ClassCreatedEventPayload>()
+            .classId(this.savedClass.id)
+            .build();
+        const event = new ClassCreatedEvent(eventPayload);
+        this.broadcastService.broadcastEventToAllMicroservices(event.pattern, event.payload);
     }
 
     async step1Compensation(cmd: CreateClassSaga) {

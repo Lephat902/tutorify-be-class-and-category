@@ -1,6 +1,8 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { ClassCategory, Level, Subject } from './entities';
 import { ClassCategoryRepository, LevelRepository, SubjectRepository } from './repositories';
+import { BroadcastService, ClassCategoryCreatedEvent, ClassCategoryCreatedEventPayload } from '@tutorify/shared';
+import { Builder } from 'builder-pattern';
 
 @Injectable()
 export class ClassCategoryService {
@@ -8,6 +10,7 @@ export class ClassCategoryService {
         private readonly classCategoryRepository: ClassCategoryRepository,
         private readonly levelRepository: LevelRepository,
         private readonly subjectRepository: SubjectRepository,
+        private readonly broadcastService: BroadcastService,
     ) { }
 
     findAll(): Promise<ClassCategory[]> {
@@ -56,7 +59,10 @@ export class ClassCategoryService {
 
         const classCategory = this.classCategoryRepository.create({ level, subject });
 
-        return this.classCategoryRepository.save(classCategory);
+        const newClassCategory = await this.classCategoryRepository.save(classCategory);
+        this.dispatchEvent(newClassCategory.id);
+
+        return newClassCategory;
     }
 
     private async findOrCreateEntity(
@@ -77,5 +83,13 @@ export class ClassCategoryService {
             }
         }
         return entity;
+    }
+
+    async dispatchEvent(id: string) {
+        const eventPayload = Builder<ClassCategoryCreatedEventPayload>()
+            .classCategoryId(id)
+            .build();
+        const event = new ClassCategoryCreatedEvent(eventPayload);
+        this.broadcastService.broadcastEventToAllMicroservices(event.pattern, event.payload);
     }
 }
