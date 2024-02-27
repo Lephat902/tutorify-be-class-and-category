@@ -39,6 +39,6 @@ import { BroadcastModule, QueueNames } from '@tutorify/shared';
   ],
   controllers: [ClassController],
   providers: [...CommandHandlers, ...QueryHandlers, ClassService],
-  exports: [ClientsModule],
+  exports: [ClientsModule, BroadcastModule],
 })
 export class ApplicationModule { }
