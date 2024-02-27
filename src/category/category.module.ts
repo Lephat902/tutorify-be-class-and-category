@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { ClassCategoryController } from './category.controller';
 import { ClassCategoryService } from './category.service';
 import { ClassCategoryRepository, LevelRepository, SubjectRepository } from './repositories';
+import { BroadcastModule } from '@tutorify/shared';
 
 const entities = [
   Level,
@@ -25,6 +26,7 @@ const entities = [
       }),
       inject: [ConfigService],
     }),
+    BroadcastModule,
   ],
   controllers: [
     ClassCategoryController,
