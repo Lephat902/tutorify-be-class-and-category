@@ -60,7 +60,7 @@ export class ClassCategoryService {
         const classCategory = this.classCategoryRepository.create({ level, subject });
 
         const newClassCategory = await this.classCategoryRepository.save(classCategory);
-        this.dispatchEvent(newClassCategory.id);
+        this.dispatchEvent(newClassCategory);
 
         return newClassCategory;
     }
@@ -85,9 +85,12 @@ export class ClassCategoryService {
         return entity;
     }
 
-    async dispatchEvent(id: string) {
+    async dispatchEvent(newClassCategory: ClassCategory) {
+        const {id, subject, level} = newClassCategory;
         const eventPayload = Builder<ClassCategoryCreatedEventPayload>()
             .classCategoryId(id)
+            .subjectId(subject.id)
+            .levelId(level.id)
             .build();
         const event = new ClassCategoryCreatedEvent(eventPayload);
         this.broadcastService.broadcastEventToAllMicroservices(event.pattern, event.payload);
