@@ -33,8 +33,7 @@ export class ClassController {
   }
 
   @MessagePattern({ cmd: 'getClasses' })
-  async getClasses(data: { filters: ClassQueryDto }): Promise<Class[]> {
-    const { filters } = data;
+  async getClasses(filters: ClassQueryDto): Promise<Class[]> {
     return this.classService.getClasses(filters);
   }
 

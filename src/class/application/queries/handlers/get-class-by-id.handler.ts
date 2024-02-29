@@ -12,7 +12,7 @@ export class GetClassByIdHandler implements IQueryHandler<GetClassByIdQuery> {
         const { id } = query;
         const cl = await this.classRepository.findOneBy({ id });
         if (!cl) {
-            throw new NotFoundException();
+            throw new NotFoundException(`Class with id ${id} Not Found`);
         }
         return cl;
     }
