@@ -22,4 +22,5 @@ export class ClassCreateUpdateDto {
     timeSlots: ClassTimeSlotDto[];
     tutorId?: string;
     desiredTutorIds: string[];
+    imgUrl?: string;
 }

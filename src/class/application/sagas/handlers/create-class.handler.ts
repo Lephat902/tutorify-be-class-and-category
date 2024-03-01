@@ -2,7 +2,7 @@ import { Class } from 'src/class/infrastructure/entities';
 import { ClassRepository } from 'src/class/infrastructure/repositories';
 import { BadRequestException, Inject } from '@nestjs/common';
 import { ClassCategoryRepository } from 'src/category/repositories';
-import { validateAndFetchCategories } from '../../helpers';
+import { getRandomClassImageURL, validateAndFetchCategories } from '../../helpers';
 import { ClientProxy } from '@nestjs/microservices';
 import { BroadcastService, ClassCreatedEvent, ClassCreatedEventPayload, DesignateTutorsToClassDto, QueueNames } from '@tutorify/shared';
 import { firstValueFrom } from 'rxjs';
@@ -42,7 +42,7 @@ export class CreateClassSagaHandler {
 
     async step1(cmd: CreateClassSaga) {
         const { studentId, createClassDto } = cmd;
-        const { classCategoryIds, isOnline, address, wardId } = createClassDto;
+        const { classCategoryIds, isOnline, address, wardId, imgUrl } = createClassDto;
 
         // Fetch ClassCategory entities based on the provided classCategoryIds
         const classCategories = await validateAndFetchCategories(this.classCategoryRepository, classCategoryIds);
@@ -55,6 +55,7 @@ export class CreateClassSagaHandler {
         const newClass = this.classRepository.create({
             studentId,
             classCategories,
+            imgUrl: imgUrl || getRandomClassImageURL(),
             ...createClassDto,
         });
         this.savedClass = await this.classRepository.save(newClass);

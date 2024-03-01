@@ -66,4 +66,7 @@ export class Class {
 
     @OneToMany(() => ClassTimeSlot, timeSlot => timeSlot.class, { cascade: true, eager: true })
     timeSlots: ClassTimeSlot[];
+
+    @Column({ default: '' })
+    imgUrl: string;
 }
