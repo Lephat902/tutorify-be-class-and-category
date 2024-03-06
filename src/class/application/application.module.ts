@@ -3,9 +3,10 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { CommandHandlers } from './commands/handlers';
 import { QueryHandlers } from './queries/handlers';
 import { ClassService } from './class.service';
-import { ClassController } from './class.controller';
+import { ClassController, ClassEventHandlerController } from './controllers';
 import { InfrastructureModule } from '../infrastructure/infrastructure.module';
 import { BroadcastModule } from '@tutorify/shared';
+import { ClassEventDispatcher } from './class.event-dispatcher';
 
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import { BroadcastModule } from '@tutorify/shared';
     CqrsModule,
     BroadcastModule,
   ],
-  controllers: [ClassController],
-  providers: [...CommandHandlers, ...QueryHandlers, ClassService],
+  controllers: [ClassController, ClassEventHandlerController],
+  providers: [...CommandHandlers, ...QueryHandlers, ClassService, ClassEventDispatcher],
 })
 export class ApplicationModule { }
