@@ -4,37 +4,49 @@ import { ClassRepository } from 'src/class/infrastructure/repositories';
 import { BadRequestException } from '@nestjs/common';
 import { ClassCategoryRepository } from 'src/category/repositories';
 import { Class } from 'src/class/infrastructure/entities';
-import { getRandomClassImageURL, validateAndFetchCategories } from '../../helpers';
+import {
+  getRandomClassImageURL,
+  validateAndFetchCategories,
+} from '../../helpers';
 import { ClassEventDispatcher } from '../../class.event-dispatcher';
 
 @CommandHandler(CreateClassCommand)
 export class CreateClassHandler implements ICommandHandler<CreateClassCommand> {
-    constructor(
-        private readonly classRepository: ClassRepository,
-        private readonly classCategoryRepository: ClassCategoryRepository,
-        private readonly classEventDispatcher: ClassEventDispatcher,
-    ) { }
+  constructor(
+    private readonly classRepository: ClassRepository,
+    private readonly classCategoryRepository: ClassCategoryRepository,
+    private readonly classEventDispatcher: ClassEventDispatcher,
+  ) {}
 
-    async execute(command: CreateClassCommand): Promise<Class> {
-        const { studentId, createClassDto } = command;
-        const { classCategoryIds, isOnline, address, wardId, imgUrl } = createClassDto;
+  async execute(command: CreateClassCommand): Promise<Class> {
+    const { studentId, createClassDto } = command;
+    const { classCategoryIds, isOnline, address, wardId, imgUrl } =
+      createClassDto;
 
-        // Fetch ClassCategory entities based on the provided classCategoryIds
-        const classCategories = await validateAndFetchCategories(this.classCategoryRepository, classCategoryIds);
+    // Fetch ClassCategory entities based on the provided classCategoryIds
+    const classCategories = await validateAndFetchCategories(
+      this.classCategoryRepository,
+      classCategoryIds,
+    );
 
-        // Check if isOnline is false and if address and wardId are provided
-        if (isOnline === false && (!address || !wardId)) {
-            throw new BadRequestException('Address and wardId are required for offline classes.');
-        }
-
-        const newClassData = this.classRepository.create({
-            studentId,
-            classCategories,
-            imgUrl: imgUrl || getRandomClassImageURL(),
-            ...createClassDto,
-        });
-        const newClass = await this.classRepository.save(newClassData);
-        this.classEventDispatcher.dispatchClassCreatedEvent(newClass.id, createClassDto);
-        return newClass;
+    // Check if isOnline is false and if address and wardId are provided
+    if (isOnline === false && (!address || !wardId)) {
+      throw new BadRequestException(
+        'Address and wardId are required for offline classes.',
+      );
     }
+
+    const newClassData = this.classRepository.create({
+      studentId,
+      classCategories,
+      imgUrl: imgUrl || getRandomClassImageURL(),
+      ...createClassDto,
+    });
+    const newClass = await this.classRepository.save(newClassData);
+    this.classEventDispatcher.dispatchClassCreatedEvent(
+      newClass.id,
+      createClassDto,
+    );
+    return newClass;
+  }
 }

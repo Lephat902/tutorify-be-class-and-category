@@ -4,8 +4,8 @@ import { GetClassesHandler } from './get-classes.handler';
 import { GetClassByIdHandler } from './get-class-by-id.handler';
 
 export const QueryHandlers = [
-    GetClassByIdHandler,
-    GetClassesHandler,
-    GetClassesByStudentIdHandler,
-    GetClassesByTutorIdHandler,
-]
+  GetClassByIdHandler,
+  GetClassesHandler,
+  GetClassesByStudentIdHandler,
+  GetClassesByTutorIdHandler,
+];

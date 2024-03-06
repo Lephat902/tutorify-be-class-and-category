@@ -8,9 +8,15 @@ export class ClassCategory {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Subject, subject => subject.classCategories, { nullable: false, eager: true })
+  @ManyToOne(() => Subject, (subject) => subject.classCategories, {
+    nullable: false,
+    eager: true,
+  })
   subject: Subject;
 
-  @ManyToOne(() => Level, level => level.classCategories, { nullable: false, eager: true })
+  @ManyToOne(() => Level, (level) => level.classCategories, {
+    nullable: false,
+    eager: true,
+  })
   level: Level;
 }

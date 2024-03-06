@@ -6,8 +6,4 @@ export * from './category.entity';
 export * from './level.entity';
 export * from './subject.entity';
 
-export const entities = [
-    Subject,
-    Level,
-    ClassCategory
-];
+export const entities = [Subject, Level, ClassCategory];

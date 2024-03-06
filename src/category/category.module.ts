@@ -4,14 +4,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { ClassCategoryController } from './category.controller';
 import { ClassCategoryService } from './category.service';
-import { ClassCategoryRepository, LevelRepository, SubjectRepository } from './repositories';
+import {
+  ClassCategoryRepository,
+  LevelRepository,
+  SubjectRepository,
+} from './repositories';
 import { BroadcastModule } from '@tutorify/shared';
 
-const entities = [
-  Level,
-  Subject,
-  ClassCategory,
-]
+const entities = [Level, Subject, ClassCategory];
 
 @Global()
 @Module({
@@ -28,17 +28,13 @@ const entities = [
     }),
     BroadcastModule,
   ],
-  controllers: [
-    ClassCategoryController,
-  ],
+  controllers: [ClassCategoryController],
   providers: [
     ClassCategoryService,
     ClassCategoryRepository,
     SubjectRepository,
     LevelRepository,
   ],
-  exports: [
-    ClassCategoryRepository,
-  ]
+  exports: [ClassCategoryRepository],
 })
-export class CategoryModule { }
+export class CategoryModule {}

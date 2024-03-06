@@ -5,10 +5,10 @@ import { ClassRepository } from 'src/class/infrastructure/repositories';
 
 @QueryHandler(GetClassesQuery)
 export class GetClassesHandler implements IQueryHandler<GetClassesQuery> {
-    constructor(private readonly classRepository: ClassRepository) { }
+  constructor(private readonly classRepository: ClassRepository) {}
 
-    async execute(query: GetClassesQuery): Promise<Class[]> {
-        const { filters } = query;
-        return this.classRepository.findByFieldsWithFilters({}, filters);
-    }
+  async execute(query: GetClassesQuery): Promise<Class[]> {
+    const { filters } = query;
+    return this.classRepository.findByFieldsWithFilters({}, filters);
+  }
 }

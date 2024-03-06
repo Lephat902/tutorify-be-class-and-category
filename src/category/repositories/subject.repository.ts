@@ -4,7 +4,7 @@ import { Subject } from '../entities';
 
 @Injectable()
 export class SubjectRepository extends Repository<Subject> {
-    constructor(private dataSource: DataSource) {
-        super(Subject, dataSource.createEntityManager());
-    }
+  constructor(private dataSource: DataSource) {
+    super(Subject, dataSource.createEntityManager());
+  }
 }
