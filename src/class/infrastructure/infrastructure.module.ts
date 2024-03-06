@@ -24,4 +24,4 @@ const entities = [Class, ClassTimeSlot, ...categoryEntities];
   providers: [ClassRepository],
   exports: [ClassRepository],
 })
-export class InfrastructureModule { }
+export class InfrastructureModule {}

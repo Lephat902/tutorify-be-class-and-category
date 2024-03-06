@@ -4,9 +4,6 @@ import { InfrastructureModule } from './infrastructure/infrastructure.module';
 
 @Global()
 @Module({
-  imports: [
-    ApplicationModule,
-    InfrastructureModule,
-  ],
+  imports: [ApplicationModule, InfrastructureModule],
 })
-export class ClassModule { }
+export class ClassModule {}

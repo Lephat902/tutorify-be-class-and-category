@@ -9,12 +9,13 @@ import { BroadcastModule } from '@tutorify/shared';
 import { ClassEventDispatcher } from './class.event-dispatcher';
 
 @Module({
-  imports: [
-    InfrastructureModule,
-    CqrsModule,
-    BroadcastModule,
-  ],
+  imports: [InfrastructureModule, CqrsModule, BroadcastModule],
   controllers: [ClassController, ClassEventHandlerController],
-  providers: [...CommandHandlers, ...QueryHandlers, ClassService, ClassEventDispatcher],
+  providers: [
+    ...CommandHandlers,
+    ...QueryHandlers,
+    ClassService,
+    ClassEventDispatcher,
+  ],
 })
-export class ApplicationModule { }
+export class ApplicationModule {}

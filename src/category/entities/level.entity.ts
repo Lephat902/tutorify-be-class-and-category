@@ -11,6 +11,6 @@ export class Level {
   name: string;
 
   @Exclude()
-  @OneToMany(() => ClassCategory, classCategory => classCategory.level)
+  @OneToMany(() => ClassCategory, (classCategory) => classCategory.level)
   classCategories: ClassCategory[];
 }

@@ -11,6 +11,6 @@ export class Subject {
   name: string;
 
   @Exclude()
-  @OneToMany(() => ClassCategory, classCategory => classCategory.subject)
+  @OneToMany(() => ClassCategory, (classCategory) => classCategory.subject)
   classCategories: ClassCategory[];
 }

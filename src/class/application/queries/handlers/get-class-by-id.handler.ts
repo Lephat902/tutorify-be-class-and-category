@@ -6,14 +6,14 @@ import { NotFoundException } from '@nestjs/common';
 
 @QueryHandler(GetClassByIdQuery)
 export class GetClassByIdHandler implements IQueryHandler<GetClassByIdQuery> {
-    constructor(private readonly classRepository: ClassRepository) { }
+  constructor(private readonly classRepository: ClassRepository) {}
 
-    async execute(query: GetClassByIdQuery): Promise<Class> {
-        const { id } = query;
-        const cl = await this.classRepository.findOneBy({ id });
-        if (!cl) {
-            throw new NotFoundException(`Class with id ${id} Not Found`);
-        }
-        return cl;
+  async execute(query: GetClassByIdQuery): Promise<Class> {
+    const { id } = query;
+    const cl = await this.classRepository.findOneBy({ id });
+    if (!cl) {
+      throw new NotFoundException(`Class with id ${id} Not Found`);
     }
+    return cl;
+  }
 }
