@@ -1,10 +1,9 @@
 import { Controller } from '@nestjs/common';
-import { EventPattern, MessagePattern } from '@nestjs/microservices';
-import { ClassService } from './class.service';
-import { Class } from '../infrastructure/entities';
-import { ClassCreateUpdateDto } from './dtos';
-import { ClassQueryDto } from './dtos/class-query.dto';
-import { ApplicationStatus, ClassApplicationUpdatedEventPattern, ClassApplicationUpdatedEventPayload } from '@tutorify/shared';
+import { MessagePattern } from '@nestjs/microservices';
+import { ClassService } from '../class.service';
+import { Class } from '../../infrastructure/entities';
+import { ClassCreateUpdateDto } from '../dtos';
+import { ClassQueryDto } from '../dtos/class-query.dto';
 
 @Controller()
 export class ClassController {
@@ -53,16 +52,5 @@ export class ClassController {
   async getClassesByUserId(data: { userId: string, filters: ClassQueryDto }): Promise<Class[]> {
     const { userId, filters } = data;
     return this.classService.getClassesByUserId(userId, filters);
-  }
-
-  @EventPattern(new ClassApplicationUpdatedEventPattern())
-  async handleClassApplicationUpdated(payload: ClassApplicationUpdatedEventPayload) {
-    const { classId, tutorId, newStatus } = payload
-    if (newStatus !== ApplicationStatus.APPROVED) {
-      return;
-    }
-    await this.classService.updateClass(classId, {
-      tutorId
-    });
   }
 }
