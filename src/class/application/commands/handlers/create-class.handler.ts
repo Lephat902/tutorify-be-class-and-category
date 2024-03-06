@@ -5,16 +5,14 @@ import { BadRequestException } from '@nestjs/common';
 import { ClassCategoryRepository } from 'src/category/repositories';
 import { Class } from 'src/class/infrastructure/entities';
 import { getRandomClassImageURL, validateAndFetchCategories } from '../../helpers';
-import { BroadcastService, ClassCreatedEvent, ClassCreatedEventPayload } from '@tutorify/shared';
-import { Builder } from 'builder-pattern';
-import { ClassCreateUpdateDto } from '../../dtos';
+import { ClassEventDispatcher } from '../../class.event-dispatcher';
 
 @CommandHandler(CreateClassCommand)
 export class CreateClassHandler implements ICommandHandler<CreateClassCommand> {
     constructor(
         private readonly classRepository: ClassRepository,
         private readonly classCategoryRepository: ClassCategoryRepository,
-        private readonly broadcastService: BroadcastService,
+        private readonly classEventDispatcher: ClassEventDispatcher,
     ) { }
 
     async execute(command: CreateClassCommand): Promise<Class> {
@@ -36,16 +34,7 @@ export class CreateClassHandler implements ICommandHandler<CreateClassCommand> {
             ...createClassDto,
         });
         const newClass = await this.classRepository.save(newClassData);
-        this.dispatchEvent(newClass.id, createClassDto);
+        this.classEventDispatcher.dispatchClassCreatedEvent(newClass.id, createClassDto);
         return newClass;
-    }
-
-    async dispatchEvent(classId: string, createClassDto: ClassCreateUpdateDto) {
-        const eventPayload = Builder<ClassCreatedEventPayload>()
-            .classId(classId)
-            .desiredTutorIds(createClassDto?.desiredTutorIds)
-            .build();
-        const event = new ClassCreatedEvent(eventPayload);
-        this.broadcastService.broadcastEventToAllMicroservices(event.pattern, event.payload);
     }
 }
