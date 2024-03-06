@@ -5,15 +5,14 @@ import { BadRequestException } from '@nestjs/common';
 import { ClassCategoryRepository } from 'src/category/repositories';
 import { Class } from 'src/class/infrastructure/entities';
 import { validateAndFetchCategories } from '../../helpers';
-import { BroadcastService, ClassUpdatedEvent, ClassUpdatedEventPayload } from '@tutorify/shared';
-import { Builder } from 'builder-pattern';
+import { ClassEventDispatcher } from '../../class.event-dispatcher';
 
 @CommandHandler(UpdateClassCommand)
 export class UpdateClassHandler implements ICommandHandler<UpdateClassCommand> {
     constructor(
         private readonly classRepository: ClassRepository,
         private readonly classCategoryRepository: ClassCategoryRepository,
-        private readonly broadcastService: BroadcastService,
+        private readonly classEventDispatcher: ClassEventDispatcher,
     ) { }
 
     async execute(command: UpdateClassCommand): Promise<Class> {
@@ -45,15 +44,7 @@ export class UpdateClassHandler implements ICommandHandler<UpdateClassCommand> {
         // Update the class with the provided data
         const updatedClassData = this.classRepository.merge(existingClass, updateClassDto);
         const updatedClass = this.classRepository.save(updatedClassData);
-        this.dispatchEvent(id);
+        this.classEventDispatcher.dispatchClassUpdatedEvent(id);
         return updatedClass;
-    }
-
-    async dispatchEvent(id: string) {
-        const eventPayload = Builder<ClassUpdatedEventPayload>()
-            .classId(id)
-            .build();
-        const event = new ClassUpdatedEvent(eventPayload);
-        this.broadcastService.broadcastEventToAllMicroservices(event.pattern, event.payload);
     }
 }
