@@ -1,5 +1,4 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { Class } from 'src/class/infrastructure/entities';
 import { GetClassesByUserIdQuery } from '../impl';
 import { ClassRepository } from 'src/class/infrastructure/repositories';
 
@@ -9,7 +8,7 @@ export class GetClassesByUserIdHandler
 {
   constructor(private readonly classRepository: ClassRepository) {}
 
-  async execute(query: GetClassesByUserIdQuery): Promise<Class[]> {
+  async execute(query: GetClassesByUserIdQuery) {
     const { userId, filters } = query;
     return this.classRepository.findByFieldsWithFilters(
       {
@@ -17,6 +16,7 @@ export class GetClassesByUserIdHandler
         studentId: userId,
       },
       filters,
+      true
     );
   }
 }

@@ -42,6 +42,14 @@ export class ClassController {
     return this.classService.getClasses(filters);
   }
 
+  @MessagePattern({ cmd: 'getClassesAndTotalCount' })
+  async getClassesAndTotalCount(filters: ClassQueryDto): Promise<{
+    classes: Class[],
+    totalCount: number,
+  }> {
+    return this.classService.getClassesAndTotalCount(filters);
+  }
+
   @MessagePattern({ cmd: 'getClassesByStudentId' })
   async getClassesByStudentId(data: {
     studentId: string;

@@ -7,6 +7,7 @@ import { DeleteClassByIdCommand } from './commands/impl/delete-class-by-id.comma
 import { ClassQueryDto } from './dtos/class-query.dto';
 import {
   GetClassByIdQuery,
+  GetClassesAndTotalCountQuery,
   GetClassesByStudentIdQuery,
   GetClassesByTutorIdQuery,
   GetClassesQuery,
@@ -46,6 +47,13 @@ export class ClassService {
 
   async getClasses(filters: ClassQueryDto): Promise<Class[]> {
     return this.queryBus.execute(new GetClassesQuery(filters));
+  }
+
+  async getClassesAndTotalCount(filters: ClassQueryDto): Promise<{
+    classes: Class[],
+    totalCount: number,
+  }> {
+    return this.queryBus.execute(new GetClassesAndTotalCountQuery(filters));
   }
 
   async getClassesByStudentId(
