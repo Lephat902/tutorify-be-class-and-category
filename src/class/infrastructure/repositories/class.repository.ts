@@ -12,7 +12,8 @@ export class ClassRepository extends Repository<Class> {
   async findByFieldsWithFilters(
     fields: Record<string, any>,
     filters?: ClassQueryDto,
-  ): Promise<Class[]> {
+    includeTotalCount: boolean = false
+  ): Promise<Class[] | { results: Class[], totalCount?: number }> {
     let classQuery = this.createQueryBuilderWithEagerLoading();
 
     // Filter by fields if provided
@@ -25,7 +26,16 @@ export class ClassRepository extends Repository<Class> {
       classQuery = this.applyAdditionalFilters(classQuery, filters);
     }
 
-    return classQuery.getMany();
+    // Execute query to get results
+    const results = await classQuery.getMany();
+
+    if (includeTotalCount) {
+      // Execute count query to get total count
+      const totalCount = await classQuery.getCount();
+      return { results, totalCount };
+    } else {
+      return results;
+    }
   }
 
   private createQueryBuilderWithEagerLoading(): SelectQueryBuilder<Class> {
