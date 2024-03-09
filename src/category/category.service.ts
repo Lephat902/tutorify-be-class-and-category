@@ -114,8 +114,8 @@ export class ClassCategoryService {
     const { id, subject, level } = newClassCategory;
     const eventPayload = Builder<ClassCategoryCreatedEventPayload>()
       .classCategoryId(id)
-      .subjectId(subject.id)
-      .levelId(level.id)
+      .subject(subject)
+      .level(level)
       .build();
     const event = new ClassCategoryCreatedEvent(eventPayload);
     this.broadcastService.broadcastEventToAllMicroservices(
