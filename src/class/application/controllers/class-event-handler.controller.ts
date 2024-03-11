@@ -7,6 +7,8 @@ import {
   ClassApplicationUpdatedEventPayload,
   ClassSessionCreatedEventPattern,
   ClassSessionCreatedEventPayload,
+  ClassSessionUpdatedEventPattern,
+  ClassSessionUpdatedEventPayload,
   MultipleClassSessionsCreatedEventPattern,
   MultipleClassSessionsCreatedEventPayload,
 } from '@tutorify/shared';
@@ -35,15 +37,28 @@ export class ClassEventHandlerController {
   @EventPattern(new ClassSessionCreatedEventPattern())
   async handleClassSessionCreated(payload: ClassSessionCreatedEventPayload) {
     const { classId, classSessionId, createSessionTutorId } = payload;
-    const classToInsertClassSession =
+    const classToVerifyTutorAndClass =
       await this.classService.getClassById(classId);
-    const isValidClass = !!classToInsertClassSession;
+    const isValidClass = !!classToVerifyTutorAndClass;
     const isValidTutor =
-      classToInsertClassSession.tutorId === createSessionTutorId;
+    classToVerifyTutorAndClass.tutorId === createSessionTutorId;
     this.eventDispatcher.dispatchClassSessionClassVerified(
       classSessionId,
       isValidClass,
     );
+    this.eventDispatcher.dispatchClassSessionTutorVerified(
+      classSessionId,
+      isValidTutor,
+    );
+  }
+
+  @EventPattern(new ClassSessionUpdatedEventPattern())
+  async handleClassSessionUpdated(payload: ClassSessionUpdatedEventPayload) {
+    const { classSessionId, updateSessionTutorId, classId } = payload;
+    const classToVerifyTutor =
+      await this.classService.getClassById(classId);
+    const isValidTutor =
+    classToVerifyTutor.tutorId === updateSessionTutorId;
     this.eventDispatcher.dispatchClassSessionTutorVerified(
       classSessionId,
       isValidTutor,
