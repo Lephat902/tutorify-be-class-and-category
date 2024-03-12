@@ -11,6 +11,7 @@ import {
   GetClassesByStudentIdQuery,
   GetClassesByTutorIdQuery,
   GetClassesQuery,
+  GetNumberOfClassesByCategoryIdQuery,
 } from './queries/impl';
 import { GetClassesByUserIdQuery } from './queries/impl/get-classes-by-user-id.query';
 
@@ -79,5 +80,11 @@ export class ClassService {
     filters: ClassQueryDto,
   ): Promise<Class[]> {
     return this.queryBus.execute(new GetClassesByUserIdQuery(userId, filters));
+  }
+
+  async getNumberOfClassesByCategoryId(
+    classCategoryId: string,
+  ): Promise<number> {
+    return this.queryBus.execute(new GetNumberOfClassesByCategoryIdQuery(classCategoryId));
   }
 }

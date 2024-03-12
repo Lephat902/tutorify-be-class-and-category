@@ -38,6 +38,14 @@ export class ClassRepository extends Repository<Class> {
     }
   }
 
+  async getNumberOfClassesByCategoryId(classCategoryId: string): Promise<number> {
+    return this
+      .createQueryBuilder('class')
+      .innerJoin('class.classCategories', 'classCategory')
+      .where('classCategory.id = :classCategoryId', { classCategoryId })
+      .getCount();
+  }  
+
   private createQueryBuilderWithEagerLoading(): SelectQueryBuilder<Class> {
     return this.dataSource
       .createQueryBuilder(Class, 'class')

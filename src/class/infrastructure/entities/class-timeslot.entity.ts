@@ -1,12 +1,10 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 import { Class } from './class.entity';
 import { Weekday } from '@tutorify/shared';
-import { Exclude } from 'class-transformer';
 
 @Entity()
 export class ClassTimeSlot {
   @PrimaryGeneratedColumn('uuid')
-  @Exclude()
   id: string;
 
   @Column({ type: 'time', nullable: false })
