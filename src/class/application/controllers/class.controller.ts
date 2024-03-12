@@ -76,4 +76,9 @@ export class ClassController {
     const { userId, filters } = data;
     return this.classService.getClassesByUserId(userId, filters);
   }
+
+  @MessagePattern({ cmd: 'getNumberOfClassesByCategoryId' })
+  async getNumberOfClassesByCategoryId(classCategoryId: string): Promise<number> {
+    return this.classService.getNumberOfClassesByCategoryId(classCategoryId);
+  }
 }
