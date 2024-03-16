@@ -8,6 +8,6 @@ export class GetClassesAndTotalCountHandler implements IQueryHandler<GetClassesA
 
   async execute(query: GetClassesAndTotalCountQuery) {
     const { filters } = query;
-    return this.classRepository.findByFieldsWithFilters({}, filters, true);
+    return this.classRepository.findByFieldsWithFilters(filters, true);
   }
 }

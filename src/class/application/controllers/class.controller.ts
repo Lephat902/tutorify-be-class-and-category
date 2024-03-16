@@ -37,44 +37,12 @@ export class ClassController {
     return this.classService.getClassById(id);
   }
 
-  @MessagePattern({ cmd: 'getClasses' })
-  async getClasses(filters: ClassQueryDto): Promise<Class[]> {
-    return this.classService.getClasses(filters);
-  }
-
   @MessagePattern({ cmd: 'getClassesAndTotalCount' })
   async getClassesAndTotalCount(filters: ClassQueryDto): Promise<{
     classes: Class[],
     totalCount: number,
   }> {
     return this.classService.getClassesAndTotalCount(filters);
-  }
-
-  @MessagePattern({ cmd: 'getClassesByStudentId' })
-  async getClassesByStudentId(data: {
-    studentId: string;
-    filters: ClassQueryDto;
-  }): Promise<Class[]> {
-    const { studentId, filters } = data;
-    return this.classService.getClassesByStudentId(studentId, filters);
-  }
-
-  @MessagePattern({ cmd: 'getClassesByTutorId' })
-  async getClassesByTutorId(data: {
-    tutorId: string;
-    filters: ClassQueryDto;
-  }): Promise<Class[]> {
-    const { tutorId, filters } = data;
-    return this.classService.getClassesByTutorId(tutorId, filters);
-  }
-
-  @MessagePattern({ cmd: 'getClassesByUserId' })
-  async getClassesByUserId(data: {
-    userId: string;
-    filters: ClassQueryDto;
-  }): Promise<Class[]> {
-    const { userId, filters } = data;
-    return this.classService.getClassesByUserId(userId, filters);
   }
 
   @MessagePattern({ cmd: 'getNumberOfClassesByCategoryId' })
