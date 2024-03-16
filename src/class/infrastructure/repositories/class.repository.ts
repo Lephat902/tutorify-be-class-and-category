@@ -10,16 +10,10 @@ export class ClassRepository extends Repository<Class> {
   }
 
   async findByFieldsWithFilters(
-    fields: Record<string, any>,
     filters?: ClassQueryDto,
     includeTotalCount: boolean = false
   ): Promise<Class[] | { results: Class[], totalCount?: number }> {
     let classQuery = this.createQueryBuilderWithEagerLoading();
-
-    // Filter by fields if provided
-    for (const [field, value] of Object.entries(fields)) {
-      classQuery = classQuery.andWhere(`class.${field} = :value`, { value });
-    }
 
     // Apply additional filters if provided
     if (filters) {
@@ -44,7 +38,7 @@ export class ClassRepository extends Repository<Class> {
       .innerJoin('class.classCategories', 'classCategory')
       .where('classCategory.id = :classCategoryId', { classCategoryId })
       .getCount();
-  }  
+  }
 
   private createQueryBuilderWithEagerLoading(): SelectQueryBuilder<Class> {
     return this.dataSource
@@ -59,6 +53,11 @@ export class ClassRepository extends Repository<Class> {
     query: SelectQueryBuilder<Class>,
     filters: ClassQueryDto,
   ) {
+    if (filters.userId) {
+      query.andWhere('(class.studentId = :userId OR class.tutorId = :userId)', {
+        userId: filters.userId
+      });
+    }
     if (filters.classCategoryIds && filters.classCategoryIds.length > 0) {
       query = query.andWhere('classCategories.id IN (:...classCategoryIds)', {
         classCategoryIds: filters.classCategoryIds,

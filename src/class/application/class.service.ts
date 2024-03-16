@@ -8,12 +8,8 @@ import { ClassQueryDto } from './dtos/class-query.dto';
 import {
   GetClassByIdQuery,
   GetClassesAndTotalCountQuery,
-  GetClassesByStudentIdQuery,
-  GetClassesByTutorIdQuery,
-  GetClassesQuery,
   GetNumberOfClassesByCategoryIdQuery,
 } from './queries/impl';
-import { GetClassesByUserIdQuery } from './queries/impl/get-classes-by-user-id.query';
 
 @Injectable()
 export class ClassService {
@@ -46,40 +42,11 @@ export class ClassService {
     return this.queryBus.execute(new GetClassByIdQuery(id));
   }
 
-  async getClasses(filters: ClassQueryDto): Promise<Class[]> {
-    return this.queryBus.execute(new GetClassesQuery(filters));
-  }
-
   async getClassesAndTotalCount(filters: ClassQueryDto): Promise<{
     classes: Class[],
     totalCount: number,
   }> {
     return this.queryBus.execute(new GetClassesAndTotalCountQuery(filters));
-  }
-
-  async getClassesByStudentId(
-    studentId: string,
-    filters: ClassQueryDto,
-  ): Promise<Class[]> {
-    return this.queryBus.execute(
-      new GetClassesByStudentIdQuery(studentId, filters),
-    );
-  }
-
-  async getClassesByTutorId(
-    tutorId: string,
-    filters: ClassQueryDto,
-  ): Promise<Class[]> {
-    return this.queryBus.execute(
-      new GetClassesByTutorIdQuery(tutorId, filters),
-    );
-  }
-
-  async getClassesByUserId(
-    userId: string,
-    filters: ClassQueryDto,
-  ): Promise<Class[]> {
-    return this.queryBus.execute(new GetClassesByUserIdQuery(userId, filters));
   }
 
   async getNumberOfClassesByCategoryId(
