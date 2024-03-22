@@ -89,6 +89,13 @@ export class ClassRepository extends Repository<Class> {
     if (!filters.includeHidden) {
       query = query.andWhere('class.isHidden = :isHidden', { isHidden: false });
     }
+    if (filters.isAssigned !== undefined) {
+      if (filters.isAssigned) {
+        query = query.andWhere('class.tutorId IS NOT NULL');
+      } else {
+        query = query.andWhere('class.tutorId IS NULL');
+      }
+    }
 
     return query;
   }
