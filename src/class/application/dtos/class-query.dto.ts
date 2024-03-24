@@ -1,22 +1,25 @@
+import { IntersectionType } from '@nestjs/mapped-types';
 import {
   PaginationDto,
   SortingDirectionDto,
-  applyMixins,
   ClassOrderBy,
 } from '@tutorify/shared';
 
-class ClassQueryDto {
-  readonly q?: string;
-  readonly order?: ClassOrderBy;
-  readonly classCategoryIds?: string[];
-  readonly subjectIds?: string[];
-  readonly levelIds?: string[];
-  readonly includeHidden?: boolean;
-  readonly isAssigned?: boolean;
-  readonly userId?: boolean;
+export class ClassQueryDto extends IntersectionType(
+  PaginationDto,
+  SortingDirectionDto
+) {
+  readonly q: string;
+  readonly order: ClassOrderBy;
+  readonly classCategoryIds: string[] = [];
+  tutorPreferences: {
+    classCategoryIds: string[];
+  };
+  readonly subjectIds: string[] = [];
+  readonly levelIds: string[] = [];
+  readonly includeHidden: boolean;
+  readonly isAssigned: boolean;
+  readonly userId: string;
+  readonly me: boolean;
+  readonly isTutor: boolean;
 }
-
-interface ClassQueryDto extends PaginationDto, SortingDirectionDto {}
-applyMixins(ClassQueryDto, [PaginationDto, SortingDirectionDto]);
-
-export { ClassQueryDto };
