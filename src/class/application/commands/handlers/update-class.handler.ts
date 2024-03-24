@@ -4,7 +4,7 @@ import { ClassRepository } from 'src/class/infrastructure/repositories';
 import { BadRequestException } from '@nestjs/common';
 import { ClassCategoryRepository } from 'src/category/repositories';
 import { Class } from 'src/class/infrastructure/entities';
-import { validateAndFetchCategories } from '../../helpers';
+import { generateClassTitle, validateAndFetchCategories } from '../../helpers';
 import { ClassEventDispatcher } from '../../class.event-dispatcher';
 
 @CommandHandler(UpdateClassCommand)
@@ -30,6 +30,8 @@ export class UpdateClassHandler implements ICommandHandler<UpdateClassCommand> {
         this.classCategoryRepository,
         updateClassDto.classCategoryIds,
       );
+      // Re-generate new title
+      existingClass.title = generateClassTitle(existingClass.classCategories);
     }
 
     // If isOnline is false, check if address and wardId are provided

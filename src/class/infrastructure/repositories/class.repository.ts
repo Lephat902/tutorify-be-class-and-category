@@ -1,4 +1,4 @@
-import { DataSource, Repository, SelectQueryBuilder } from 'typeorm';
+import { Brackets, DataSource, Repository, SelectQueryBuilder } from 'typeorm';
 import { Class } from 'src/class/infrastructure/entities';
 import { Injectable } from '@nestjs/common';
 import { ClassQueryDto } from 'src/class/application/dtos/class-query.dto';
@@ -10,9 +10,8 @@ export class ClassRepository extends Repository<Class> {
   }
 
   async findByFieldsWithFilters(
-    filters?: ClassQueryDto,
-    includeTotalCount: boolean = false
-  ): Promise<Class[] | { results: Class[], totalCount?: number }> {
+    filters?: ClassQueryDto
+  ): Promise<{ results: Class[], totalCount?: number }> {
     let classQuery = this.createQueryBuilderWithEagerLoading();
 
     // Apply additional filters if provided
@@ -21,15 +20,9 @@ export class ClassRepository extends Repository<Class> {
     }
 
     // Execute query to get results
-    const results = await classQuery.getMany();
+    const [results, totalCount] = await classQuery.getManyAndCount();
 
-    if (includeTotalCount) {
-      // Execute count query to get total count
-      const totalCount = await classQuery.getCount();
-      return { results, totalCount };
-    } else {
-      return results;
-    }
+    return { results, totalCount };
   }
 
   async getNumberOfClassesByCategoryId(classCategoryId: string): Promise<number> {
@@ -74,9 +67,12 @@ export class ClassRepository extends Repository<Class> {
       });
     }
     if (filters.q) {
-      query = query.andWhere('class.description ILIKE :q', {
-        q: `%${filters.q}%`,
-      });
+      query = query.andWhere(
+        new Brackets((qb) => {
+          qb.where('class.description ILIKE :q', { q: `%${filters.q}%` })
+            .orWhere('class.title ILIKE :q', { q: `%${filters.q}%` });
+        }),
+      );
     }
     if (filters.order) {
       query = query.orderBy(`class.${filters.order}`, filters.dir || 'ASC');

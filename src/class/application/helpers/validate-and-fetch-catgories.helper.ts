@@ -5,6 +5,10 @@ export async function validateAndFetchCategories(
   classCategoryRepository: ClassCategoryRepository,
   classCategoryIds: string[],
 ) {
+  if (!classCategoryIds?.length) {
+    throw new BadRequestException('At least one class category is required.');
+  }
+  
   const classCategories = await Promise.all(
     classCategoryIds.map((id) => classCategoryRepository.findOneBy({ id })),
   );

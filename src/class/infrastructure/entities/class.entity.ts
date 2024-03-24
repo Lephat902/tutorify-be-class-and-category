@@ -29,6 +29,9 @@ export class Class {
   classCategories: ClassCategory[];
 
   @Column({ default: '' })
+  title: string;
+
+  @Column({ default: '' })
   description: string;
 
   @CreateDateColumn({ type: 'timestamptz' })

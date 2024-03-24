@@ -5,6 +5,7 @@ import { BadRequestException } from '@nestjs/common';
 import { ClassCategoryRepository } from 'src/category/repositories';
 import { Class } from 'src/class/infrastructure/entities';
 import {
+  generateClassTitle,
   getRandomClassImageURL,
   validateAndFetchCategories,
 } from '../../helpers';
@@ -16,7 +17,7 @@ export class CreateClassHandler implements ICommandHandler<CreateClassCommand> {
     private readonly classRepository: ClassRepository,
     private readonly classCategoryRepository: ClassCategoryRepository,
     private readonly classEventDispatcher: ClassEventDispatcher,
-  ) {}
+  ) { }
 
   async execute(command: CreateClassCommand): Promise<Class> {
     const { studentId, createClassDto } = command;
@@ -29,6 +30,9 @@ export class CreateClassHandler implements ICommandHandler<CreateClassCommand> {
       classCategoryIds,
     );
 
+    // Generate the title based on the first class category
+    const title = generateClassTitle(classCategories);
+
     // Check if isOnline is false and if address and wardId are provided
     if (isOnline === false && (!address || !wardId)) {
       throw new BadRequestException(
@@ -39,14 +43,18 @@ export class CreateClassHandler implements ICommandHandler<CreateClassCommand> {
     const newClassData = this.classRepository.create({
       studentId,
       classCategories,
+      title,
       imgUrl: imgUrl || getRandomClassImageURL(),
       ...createClassDto,
     });
+
     const newClass = await this.classRepository.save(newClassData);
+
     this.classEventDispatcher.dispatchClassCreatedEvent(
       newClass.id,
       createClassDto,
     );
+
     return newClass;
   }
 }
