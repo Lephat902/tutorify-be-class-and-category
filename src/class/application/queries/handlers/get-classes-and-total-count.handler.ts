@@ -2,13 +2,15 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { GetClassesAndTotalCountQuery } from '../impl';
 import { ClassRepository } from 'src/class/infrastructure/repositories';
 import { Inject } from '@nestjs/common';
-import { QueueNames, UserPreferencesData } from '@tutorify/shared';
+import { QueueNames } from '@tutorify/shared';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom, timeout } from 'rxjs';
 
 type UserPreferences = {
   userId: string,
-  preferences: UserPreferencesData,
+  preferences: {
+    classCategoryIds: string[],
+  },
 }
 
 @QueryHandler(GetClassesAndTotalCountQuery)
@@ -22,7 +24,7 @@ export class GetClassesAndTotalCountHandler implements IQueryHandler<GetClassesA
     const { filters } = query;
     // If classCategoryIds not specified and 
     // if the user is tutor & doesn't attempt to query his/her own classes
-    if (!filters.classCategoryIds && filters?.isTutor && !filters?.me) {
+    if (!filters.classCategoryIds && (filters?.isTutor || filters?.isStudent) && !filters?.me) {
       const userPreferencesData = await this.fetchTutorProficiencies(filters.userId);
       filters.tutorPreferences = {
         classCategoryIds: userPreferencesData?.preferences?.classCategoryIds

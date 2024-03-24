@@ -22,4 +22,5 @@ export class ClassQueryDto extends IntersectionType(
   readonly userId: string;
   readonly me: boolean;
   readonly isTutor: boolean;
+  readonly isStudent: boolean;
 }
