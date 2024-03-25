@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 import { Geometry } from 'geojson';
 import { ClassCategory } from 'src/category/entities';
-import { GenderPref, TutorPositionPref } from '@tutorify/shared';
+import { ClassStatus, GenderPref, TutorPositionPref } from '@tutorify/shared';
 import { Exclude } from 'class-transformer';
 import { ClassTimeSlot } from './class-timeslot.entity';
 
@@ -24,14 +24,17 @@ export class Class {
   @Column({ nullable: true })
   tutorId: string;
 
+  @Column({ type: 'enum', enum: ClassStatus, default: ClassStatus.UNASSIGNED })
+  status: ClassStatus;
+
   @ManyToMany(() => ClassCategory, { eager: true })
   @JoinTable({ name: 'class_is_of_category' })
   classCategories: ClassCategory[];
 
-  @Column({ default: '' })
+  @Column({ nullable: true })
   title: string;
 
-  @Column({ default: '' })
+  @Column({ nullable: true })
   description: string;
 
   @CreateDateColumn({ type: 'timestamptz' })
@@ -41,7 +44,7 @@ export class Class {
   @Exclude()
   isHidden: boolean;
 
-  @Column({ default: '' })
+  @Column({ nullable: true })
   requirement: string;
 
   @Column({ type: 'date', nullable: true })
@@ -53,10 +56,10 @@ export class Class {
   @Column({ nullable: true })
   wages: number;
 
-  @Column({ default: '' })
+  @Column({ nullable: true })
   address: string;
 
-  @Column({ default: '' })
+  @Column({ nullable: true })
   wardId: string;
 
   @Column({ type: 'geometry', spatialFeatureType: 'Point', nullable: true })
@@ -66,10 +69,10 @@ export class Class {
   @Column({ default: false })
   isOnline: boolean;
 
-  @Column()
+  @Column({ nullable: true })
   studentQty: number;
 
-  @Column({ type: 'enum', enum: TutorPositionPref, nullable: true })
+  @Column({ type: 'enum', enum: TutorPositionPref, default: TutorPositionPref.NOT_REQUIRED })
   tutorPositionPref: TutorPositionPref;
 
   @Column({ type: 'enum', enum: GenderPref, default: GenderPref.NOT_REQUIRED })
@@ -81,6 +84,6 @@ export class Class {
   })
   timeSlots: ClassTimeSlot[];
 
-  @Column({ default: '' })
+  @Column({ nullable: true })
   imgUrl: string;
 }

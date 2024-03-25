@@ -1,5 +1,7 @@
 import {
   BroadcastService,
+  ClassCancelledEvent,
+  ClassCancelledEventPayload,
   ClassCreatedEvent,
   ClassCreatedEventPayload,
   ClassDeletedEvent,
@@ -13,7 +15,7 @@ import {
 } from '@tutorify/shared';
 import { Builder } from 'builder-pattern';
 import { Injectable } from '@nestjs/common';
-import { ClassCreateUpdateDto } from './dtos';
+import { ClassCreateDto } from './dtos';
 
 @Injectable()
 export class ClassEventDispatcher {
@@ -51,7 +53,7 @@ export class ClassEventDispatcher {
 
   dispatchClassCreatedEvent(
     classId: string,
-    createClassDto: ClassCreateUpdateDto,
+    createClassDto: ClassCreateDto,
   ) {
     const eventPayload = Builder<ClassCreatedEventPayload>()
       .classId(classId)
@@ -69,6 +71,17 @@ export class ClassEventDispatcher {
       .classId(id)
       .build();
     const event = new ClassDeletedEvent(eventPayload);
+    this.broadcastService.broadcastEventToAllMicroservices(
+      event.pattern,
+      event.payload,
+    );
+  }
+
+  dispatchClassCancelledEvent(id: string) {
+    const eventPayload = Builder<ClassCancelledEventPayload>()
+      .classId(id)
+      .build();
+    const event = new ClassCancelledEvent(eventPayload);
     this.broadcastService.broadcastEventToAllMicroservices(
       event.pattern,
       event.payload,

@@ -2,6 +2,7 @@ import { Brackets, DataSource, Repository, SelectQueryBuilder } from 'typeorm';
 import { Class } from 'src/class/infrastructure/entities';
 import { Injectable } from '@nestjs/common';
 import { ClassQueryDto } from 'src/class/application/dtos/class-query.dto';
+import { ClassStatus } from '@tutorify/shared';
 
 @Injectable()
 export class ClassRepository extends Repository<Class> {
@@ -30,7 +31,7 @@ export class ClassRepository extends Repository<Class> {
     this.orderByField(classQuery, filters.order, filters.dir);
     this.paginateResults(classQuery, filters.page, filters.limit);
     this.filterByVisibility(classQuery, filters.includeHidden);
-    this.filterByAssignmentStatus(classQuery, filters.isAssigned);
+    this.filterByStatuses(classQuery, filters.statuses);
 
     // Execute query to get results
     const [results, totalCount] = await classQuery.getManyAndCount();
@@ -63,6 +64,7 @@ export class ClassRepository extends Repository<Class> {
     }
   }
 
+  // Get only classes that satisfy classCategoryIds
   private filterByCategoryIds(query: SelectQueryBuilder<Class>, classCategoryIds: string[] | undefined) {
     if (classCategoryIds) {
       query.andWhere('classCategories.id IN (:...classCategoryIds)', {
@@ -71,6 +73,7 @@ export class ClassRepository extends Repository<Class> {
     }
   }
 
+  // Make classes that satisfy classCategoryIds to the top of the result, others at last
   private orderByCategoryPriority(query: SelectQueryBuilder<Class>, classCategoryIds: string[] | undefined) {
     // Assuming classCategoryIds is not empty and is relevant to the query
     if (classCategoryIds) {
@@ -127,13 +130,11 @@ export class ClassRepository extends Repository<Class> {
     }
   }
 
-  private filterByAssignmentStatus(query: SelectQueryBuilder<Class>, isAssigned: boolean | undefined) {
-    if (isAssigned !== undefined) {
-      if (isAssigned) {
-        query.andWhere('class.tutorId IS NOT NULL');
-      } else {
-        query.andWhere('class.tutorId IS NULL');
-      }
+  private filterByStatuses(query: SelectQueryBuilder<Class>, statuses: ClassStatus[] | undefined) {
+    if (statuses !== undefined) {
+      query.andWhere('class.status IN (:...statuses)', {
+        statuses
+      });
     }
   }
 

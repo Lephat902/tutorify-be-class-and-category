@@ -1,11 +1,12 @@
 import { ICommandHandler, CommandHandler } from '@nestjs/cqrs';
 import { UpdateClassCommand } from '../impl';
 import { ClassRepository } from 'src/class/infrastructure/repositories';
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { ClassCategoryRepository } from 'src/category/repositories';
 import { Class } from 'src/class/infrastructure/entities';
 import { generateClassTitle, validateAndFetchCategories } from '../../helpers';
 import { ClassEventDispatcher } from '../../class.event-dispatcher';
+import { ClassStatus } from '@tutorify/shared';
 
 @CommandHandler(UpdateClassCommand)
 export class UpdateClassHandler implements ICommandHandler<UpdateClassCommand> {
@@ -13,15 +14,22 @@ export class UpdateClassHandler implements ICommandHandler<UpdateClassCommand> {
     private readonly classRepository: ClassRepository,
     private readonly classCategoryRepository: ClassCategoryRepository,
     private readonly classEventDispatcher: ClassEventDispatcher,
-  ) {}
+  ) { }
 
   async execute(command: UpdateClassCommand): Promise<Class> {
     const { id, updateClassDto } = command;
+    const { userMakeRequest, isAdmin, isSystem } = updateClassDto;
 
     // Fetch the existing class
     const existingClass = await this.classRepository.findOneBy({ id });
     if (!existingClass) {
       throw new BadRequestException('Class not found.');
+    }
+    if (!isSystem && !isAdmin && existingClass.studentId !== userMakeRequest) {
+      throw new ForbiddenException("This class is not yours");
+    }
+    if (existingClass.status === ClassStatus.CANCELLED) {
+      throw new BadRequestException("Cannot modify a cancelled class!");
     }
 
     // If classCategoryIds are provided, fetch ClassCategory entities
@@ -49,6 +57,7 @@ export class UpdateClassHandler implements ICommandHandler<UpdateClassCommand> {
       if (existingClass.tutorId) {
         throw new BadRequestException('This class already has a tutor.');
       }
+      existingClass.status = ClassStatus.ASSIGNED;
     }
 
     // Update the class with the provided data

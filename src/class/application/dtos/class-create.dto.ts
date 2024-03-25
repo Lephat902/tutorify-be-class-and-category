@@ -6,21 +6,21 @@ class ClassTimeSlotDto {
   weekday: Weekday;
 }
 
-export class ClassCreateUpdateDto {
+export class ClassCreateDto {
   classCategoryIds: string[];
   description: string;
-  requirement?: string;
-  startDate?: Date;
-  endDate?: Date;
-  wages?: number;
-  address?: string;
-  wardId?: string;
+  requirement: string;
+  startDate: Date;
+  endDate: Date;
+  wages: number;
+  address: string;
+  wardId: string;
   isOnline: boolean;
   studentQty: number;
-  tutorPositionPref?: TutorPositionPref;
-  tutorGenderPref?: GenderPref;
+  tutorPositionPref: TutorPositionPref;
+  tutorGenderPref: GenderPref;
   timeSlots: ClassTimeSlotDto[];
-  tutorId?: string;
+  tutorId: string;
   desiredTutorIds: string[];
-  imgUrl?: string;
+  imgUrl: string;
 }

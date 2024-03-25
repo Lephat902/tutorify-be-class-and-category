@@ -41,11 +41,11 @@ export class CreateClassHandler implements ICommandHandler<CreateClassCommand> {
     }
 
     const newClassData = this.classRepository.create({
+      ...createClassDto,
       studentId,
       classCategories,
       title,
       imgUrl: imgUrl || getRandomClassImageURL(),
-      ...createClassDto,
     });
 
     const newClass = await this.classRepository.save(newClassData);
