@@ -13,6 +13,7 @@ import {
   MultipleClassSessionsCreatedEventPayload,
 } from '@tutorify/shared';
 import { ClassEventDispatcher } from '../class.event-dispatcher';
+import { ClassUpdateDto } from '../dtos';
 
 @Controller()
 export class ClassEventHandlerController {
@@ -31,7 +32,8 @@ export class ClassEventHandlerController {
     }
     await this.classService.updateClass(classId, {
       tutorId,
-    });
+      isSystem: true, // use this flag to bypass authorization check
+    } as ClassUpdateDto);
   }
 
   @EventPattern(new ClassSessionCreatedEventPattern())

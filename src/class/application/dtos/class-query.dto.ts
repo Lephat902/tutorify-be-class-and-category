@@ -3,6 +3,7 @@ import {
   PaginationDto,
   SortingDirectionDto,
   ClassOrderBy,
+  ClassStatus,
 } from '@tutorify/shared';
 
 export class ClassQueryDto extends IntersectionType(
@@ -18,7 +19,7 @@ export class ClassQueryDto extends IntersectionType(
   readonly subjectIds: string[] = [];
   readonly levelIds: string[] = [];
   readonly includeHidden: boolean;
-  readonly isAssigned: boolean;
+  readonly statuses: ClassStatus[];
   readonly userId: string;
   readonly me: boolean;
   readonly isTutor: boolean;

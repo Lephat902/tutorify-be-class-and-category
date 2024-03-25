@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ClassCreateUpdateDto } from './dtos';
+import { ClassCreateDto, ClassUpdateDto } from './dtos';
 import { Class } from '../infrastructure/entities';
-import { CreateClassCommand, UpdateClassCommand } from './commands/impl';
+import { CancelClassByIdCommand, CreateClassCommand, UpdateClassCommand } from './commands/impl';
 import { DeleteClassByIdCommand } from './commands/impl/delete-class-by-id.command';
 import { ClassQueryDto } from './dtos/class-query.dto';
 import {
@@ -16,26 +16,30 @@ export class ClassService {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
-  ) {}
+  ) { }
 
   async addClass(
     studentId: string,
-    classData: ClassCreateUpdateDto,
+    classData: ClassCreateDto,
   ): Promise<Class> {
     return this.commandBus.execute(
       new CreateClassCommand(studentId, classData),
     );
   }
 
-  async deleteClassById(id: string): Promise<void> {
-    return this.commandBus.execute(new DeleteClassByIdCommand(id));
+  async deleteClassById(id: string, userMakeRequest: string): Promise<boolean> {
+    return this.commandBus.execute(new DeleteClassByIdCommand(id, userMakeRequest));
   }
 
   async updateClass(
     id: string,
-    classData: Partial<ClassCreateUpdateDto>,
+    classData: ClassUpdateDto,
   ): Promise<Class> {
     return this.commandBus.execute(new UpdateClassCommand(id, classData));
+  }
+
+  async cancelClass(id: string): Promise<boolean> {
+    return this.commandBus.execute(new CancelClassByIdCommand(id));
   }
 
   async getClassById(id: string): Promise<Class> {
