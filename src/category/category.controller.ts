@@ -12,6 +12,11 @@ export class ClassCategoryController {
     return this.classCategoryService.findAll();
   }
 
+  @MessagePattern({ cmd: 'get_whole_category_hierarchy_by_ids' })
+  findWholeCategoryHierarchyByIds(ids: string[]): Promise<ClassCategory[]> {
+    return this.classCategoryService.findWholeCategoryHierarchyByIds(ids);
+  }
+
   @MessagePattern({ cmd: 'get_category_by_id' })
   getCategoryById(id: string): Promise<ClassCategory> {
     return this.classCategoryService.getCategoryById(id);

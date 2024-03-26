@@ -23,10 +23,19 @@ export class ClassCategoryService {
     private readonly levelRepository: LevelRepository,
     private readonly subjectRepository: SubjectRepository,
     private readonly broadcastService: BroadcastService,
-  ) {}
+  ) { }
 
   findAll(): Promise<ClassCategory[]> {
     return this.classCategoryRepository.find();
+  }
+
+  findWholeCategoryHierarchyByIds(ids: string[]): Promise<ClassCategory[]> {
+    return this.classCategoryRepository
+      .createQueryBuilder('classCategory')
+      .leftJoinAndSelect('classCategory.subject', 'subject')
+      .leftJoinAndSelect('classCategory.level', 'level')
+      .where('classCategory.id IN (:...ids)', { ids })
+      .getMany();
   }
 
   getCategoryById(id: string) {
