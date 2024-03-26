@@ -9,18 +9,18 @@ import {
   ClassSessionCreatedEventPayload,
   ClassSessionUpdatedEventPattern,
   ClassSessionUpdatedEventPayload,
-  MultipleClassSessionsCreatedEventPattern,
-  MultipleClassSessionsCreatedEventPayload,
+  ClassStatus,
 } from '@tutorify/shared';
 import { ClassEventDispatcher } from '../class.event-dispatcher';
 import { ClassUpdateDto } from '../dtos';
+import { Class } from 'src/class/infrastructure/entities';
 
 @Controller()
 export class ClassEventHandlerController {
   constructor(
     private readonly classService: ClassService,
     private readonly eventDispatcher: ClassEventDispatcher,
-  ) {}
+  ) { }
 
   @EventPattern(new ClassApplicationUpdatedEventPattern())
   async handleClassApplicationUpdated(
@@ -39,11 +39,24 @@ export class ClassEventHandlerController {
   @EventPattern(new ClassSessionCreatedEventPattern())
   async handleClassSessionCreated(payload: ClassSessionCreatedEventPayload) {
     const { classId, classSessionId, createSessionTutorId } = payload;
-    const classToVerifyTutorAndClass =
+    await this.validateClassSessionChanges(classSessionId, classId, createSessionTutorId);
+  }
+
+  @EventPattern(new ClassSessionUpdatedEventPattern())
+  async handleClassSessionUpdated(payload: ClassSessionUpdatedEventPayload) {
+    const { classSessionId, updateSessionTutorId, classId } = payload;
+    await this.validateClassSessionChanges(classSessionId, classId, updateSessionTutorId);
+  }
+
+  private async validateClassSessionChanges(
+    classSessionId: string,
+    classId: string,
+    tutorId: string,
+  ) {
+    const classToVerifyTutorAndClassAndClass =
       await this.classService.getClassById(classId);
-    const isValidClass = !!classToVerifyTutorAndClass;
-    const isValidTutor =
-    classToVerifyTutorAndClass.tutorId === createSessionTutorId;
+    const isValidClass = this.isValidClassToCreateSession(classToVerifyTutorAndClassAndClass);
+    const isValidTutor = this.isValidTutorToManipulateSession(classToVerifyTutorAndClassAndClass, tutorId);
     this.eventDispatcher.dispatchClassSessionClassVerified(
       classSessionId,
       isValidClass,
@@ -54,38 +67,11 @@ export class ClassEventHandlerController {
     );
   }
 
-  @EventPattern(new ClassSessionUpdatedEventPattern())
-  async handleClassSessionUpdated(payload: ClassSessionUpdatedEventPayload) {
-    const { classSessionId, updateSessionTutorId, classId } = payload;
-    const classToVerifyTutor =
-      await this.classService.getClassById(classId);
-    const isValidTutor =
-    classToVerifyTutor.tutorId === updateSessionTutorId;
-    this.eventDispatcher.dispatchClassSessionTutorVerified(
-      classSessionId,
-      isValidTutor,
-    );
+  private isValidClassToCreateSession(cl: Class) {
+    return !!cl && cl.status === ClassStatus.ASSIGNED;
   }
 
-  @EventPattern(new MultipleClassSessionsCreatedEventPattern())
-  async handleMultipleClassSessionsCreated(
-    payload: MultipleClassSessionsCreatedEventPayload,
-  ) {
-    const { classId, createSessionTutorId, classSessionIds } = payload;
-    const classToInsertClassSession =
-      await this.classService.getClassById(classId);
-    const isValidClass = !!classToInsertClassSession;
-    const isValidTutor =
-      classToInsertClassSession.tutorId === createSessionTutorId;
-    for (const classSessionId of classSessionIds) {
-      this.eventDispatcher.dispatchClassSessionClassVerified(
-        classSessionId,
-        isValidClass,
-      );
-      this.eventDispatcher.dispatchClassSessionTutorVerified(
-        classSessionId,
-        isValidTutor,
-      );
-    }
+  private isValidTutorToManipulateSession(cl: Class, createSessionTutorId: string) {
+    return cl.tutorId === createSessionTutorId;
   }
 }
