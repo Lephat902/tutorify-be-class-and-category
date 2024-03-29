@@ -3,7 +3,6 @@ import { ClassCreateDto } from '../../dtos';
 
 export class CreateClassCommand implements ICommand {
   constructor(
-    public readonly studentId: string,
     public readonly createClassDto: ClassCreateDto,
   ) {}
 }

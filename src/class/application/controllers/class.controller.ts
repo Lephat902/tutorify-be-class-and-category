@@ -9,12 +9,8 @@ export class ClassController {
   constructor(private readonly classService: ClassService) { }
 
   @MessagePattern({ cmd: 'addClass' })
-  async addClass(dto: {
-    studentId: string;
-    classData: ClassCreateDto;
-  }): Promise<Class> {
-    const { studentId, classData } = dto;
-    return this.classService.addClass(studentId, classData);
+  async addClass(classData: ClassCreateDto): Promise<Class> {
+    return this.classService.addClass(classData);
   }
 
   @MessagePattern({ cmd: 'deleteClassById' })

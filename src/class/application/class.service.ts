@@ -19,11 +19,10 @@ export class ClassService {
   ) { }
 
   async addClass(
-    studentId: string,
     classData: ClassCreateDto,
   ): Promise<Class> {
     return this.commandBus.execute(
-      new CreateClassCommand(studentId, classData),
+      new CreateClassCommand(classData),
     );
   }
 
