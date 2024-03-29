@@ -57,6 +57,7 @@ export class ClassEventDispatcher {
   ) {
     const eventPayload = Builder<ClassCreatedEventPayload>()
       .classId(classId)
+      .studentId(createClassDto.studentId)
       .desiredTutorIds(createClassDto?.desiredTutorIds)
       .build();
     const event = new ClassCreatedEvent(eventPayload);

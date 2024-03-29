@@ -7,6 +7,7 @@ class ClassTimeSlotDto {
 }
 
 export class ClassCreateDto {
+  studentId: string;
   classCategoryIds: string[];
   description: string;
   requirement: string;
@@ -20,7 +21,6 @@ export class ClassCreateDto {
   tutorPositionPref: TutorPositionPref;
   tutorGenderPref: GenderPref;
   timeSlots: ClassTimeSlotDto[];
-  tutorId: string;
   desiredTutorIds: string[];
   imgUrl: string;
 }

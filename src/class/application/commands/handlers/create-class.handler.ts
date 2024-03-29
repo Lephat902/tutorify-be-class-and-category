@@ -20,8 +20,8 @@ export class CreateClassHandler implements ICommandHandler<CreateClassCommand> {
   ) { }
 
   async execute(command: CreateClassCommand): Promise<Class> {
-    const { studentId, createClassDto } = command;
-    const { classCategoryIds, isOnline, address, wardId, imgUrl } =
+    const { createClassDto } = command;
+    const { studentId, classCategoryIds, isOnline, address, wardId, imgUrl } =
       createClassDto;
 
     // Fetch ClassCategory entities based on the provided classCategoryIds
