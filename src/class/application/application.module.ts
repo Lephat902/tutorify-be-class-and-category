@@ -9,6 +9,7 @@ import { BroadcastModule, QueueNames } from '@tutorify/shared';
 import { ClassEventDispatcher } from './class.event-dispatcher';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
+import { Proxies } from './proxies';
 
 @Module({
   imports: [
@@ -30,6 +31,20 @@ import { ConfigService } from '@nestjs/config';
           },
         }),
       },
+      {
+        name: QueueNames.ADDRESS,
+        inject: [ConfigService],
+        useFactory: async (configService: ConfigService) => ({
+          transport: Transport.RMQ,
+          options: {
+            urls: [configService.get<string>('RABBITMQ_URI')],
+            queue: QueueNames.ADDRESS,
+            queueOptions: {
+              durable: false,
+            },
+          },
+        }),
+      },
     ])
   ],
   controllers: [ClassController, ClassEventHandlerController],
@@ -38,6 +53,7 @@ import { ConfigService } from '@nestjs/config';
     ...QueryHandlers,
     ClassService,
     ClassEventDispatcher,
+    ...Proxies,
   ],
 })
 export class ApplicationModule { }
