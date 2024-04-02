@@ -4,6 +4,7 @@ import {
   SortingDirectionDto,
   ClassOrderBy,
   ClassStatus,
+  StoredLocation,
 } from '@tutorify/shared';
 
 export class ClassQueryDto extends IntersectionType(
@@ -15,11 +16,14 @@ export class ClassQueryDto extends IntersectionType(
   readonly classCategoryIds: string[] = [];
   tutorPreferences: {
     classCategoryIds: string[];
+    location: StoredLocation;
   };
   readonly subjectIds: string[] = [];
   readonly levelIds: string[] = [];
   readonly includeHidden: boolean;
   readonly statuses: ClassStatus[];
+  readonly isOnline: boolean;
+  // About user
   readonly userId: string;
   readonly me: boolean;
   readonly isTutor: boolean;

@@ -15,10 +15,8 @@ export class GetClassesAndTotalCountHandler implements IQueryHandler<GetClassesA
     // If classCategoryIds not specified and 
     // if the user is tutor & doesn't attempt to query his/her own classes
     if (!filters.classCategoryIds && (filters?.isTutor || filters?.isStudent) && !filters?.me) {
-      const userPreferencesData = await this.userPreferencesProxy.fetchTutorProficiencies(filters.userId);
-      filters.tutorPreferences = {
-        classCategoryIds: userPreferencesData?.preferences?.classCategoryIds
-      };
+      const userPreferencesData = await this.userPreferencesProxy.fetchUserPreferences(filters.userId);
+      filters.tutorPreferences = userPreferencesData?.preferences;
     }
     return this.classRepository.getClassesAndTotalCount(filters);
   }
