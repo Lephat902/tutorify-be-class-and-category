@@ -2,7 +2,7 @@ import { Brackets, DataSource, Repository, SelectQueryBuilder } from 'typeorm';
 import { Class } from 'src/class/infrastructure/entities';
 import { Injectable } from '@nestjs/common';
 import { ClassQueryDto } from 'src/class/application/dtos/class-query.dto';
-import { ClassStatus } from '@tutorify/shared';
+import { ClassStatus, StoredLocation } from '@tutorify/shared';
 
 @Injectable()
 export class ClassRepository extends Repository<Class> {
@@ -19,12 +19,15 @@ export class ClassRepository extends Repository<Class> {
     // Apply filters to query 
     if (filters.me)
       this.filterByUserId(classQuery, filters.userId);
+    // Location has higher priority than class category
+    this.orderByLocationPriority(classQuery, filters.tutorPreferences.location);
     // classCategoryIds takes precedence over tutorPreferences.classCategoryIds
     if (filters?.classCategoryIds) {
       this.filterByCategoryIds(classQuery, filters.classCategoryIds);
     } else if (filters?.tutorPreferences?.classCategoryIds) {
       this.orderByCategoryPriority(classQuery, filters.tutorPreferences.classCategoryIds)
     }
+    this.filterByIsOnline(classQuery, filters.isOnline);
     this.filterBySubjectIds(classQuery, filters?.subjectIds);
     this.filterByLevelIds(classQuery, filters?.levelIds);
     this.filterBySearchQuery(classQuery, filters.q);
@@ -85,7 +88,30 @@ export class ClassRepository extends Repository<Class> {
             ELSE 1
           END)`, "priority")
         .setParameter("classCategoryIds", classCategoryIds)
-        .orderBy("priority", "ASC", "NULLS LAST");
+        .addOrderBy("priority", "ASC", "NULLS LAST");
+    }
+  }
+
+  // Make classes that satisfy classCategoryIds to the top of the result, others at last
+  private orderByLocationPriority(query: SelectQueryBuilder<Class>, location: StoredLocation) {
+    // Assuming classCategoryIds is not empty and is relevant to the query
+    if (location) {
+      const longitude = location.coordinates[0];
+      const latitude = location.coordinates[1];
+
+      query
+        .addSelect(`
+          ST_DistanceSphere(
+            ST_GeomFromGeoJSON('{"type":"Point","coordinates":[${longitude},${latitude}]}'),
+            class.location
+          )`, 'distance')
+        .addOrderBy('distance', 'ASC', 'NULLS LAST');
+    }
+  }
+
+  private filterByIsOnline(query: SelectQueryBuilder<Class>, isOnline: boolean | undefined) {
+    if (isOnline) {
+      query.andWhere('class.isOnline = :isOnline', { isOnline });
     }
   }
 

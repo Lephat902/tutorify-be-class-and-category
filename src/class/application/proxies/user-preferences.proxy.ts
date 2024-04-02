@@ -1,13 +1,15 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
-import { QueueNames } from "@tutorify/shared";
+import { QueueNames, StoredLocation } from "@tutorify/shared";
 import { firstValueFrom, timeout } from "rxjs";
 
+type UserPreferencesData = {
+    classCategoryIds: string[];
+    location: StoredLocation;
+}
 type UserPreferences = {
     userId: string,
-    preferences: {
-        classCategoryIds: string[],
-    },
+    preferences: UserPreferencesData,
 }
 
 @Injectable()
@@ -16,11 +18,11 @@ export class UserPreferencesProxy {
         @Inject(QueueNames.USER_PREFERENCES) private readonly client: ClientProxy,
     ) { }
 
-    async fetchTutorProficiencies(tutorId: string): Promise<UserPreferences> {
+    async fetchUserPreferences(userId: string): Promise<UserPreferences> {
         // Limit as most 1s to fetch proficiencies
         try {
             return await firstValueFrom(
-                this.client.send<UserPreferences>({ cmd: 'getUserPreferencesByUserId' }, tutorId)
+                this.client.send<UserPreferences>({ cmd: 'getUserPreferencesByUserId' }, userId)
                     .pipe(timeout(1000))
             );
         } catch (error) {
