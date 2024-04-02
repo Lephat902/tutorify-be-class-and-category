@@ -4,9 +4,11 @@ import { ClassRepository } from 'src/class/infrastructure/repositories';
 import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { ClassCategoryRepository } from 'src/category/repositories';
 import { Class } from 'src/class/infrastructure/entities';
-import { generateClassTitle, validateAndFetchCategories } from '../../helpers';
+import { generateClassTitle, getGeocodeObject, validateAndFetchCategories, validateOnlineStatus } from '../../helpers';
 import { ClassEventDispatcher } from '../../class.event-dispatcher';
 import { ClassStatus } from '@tutorify/shared';
+import { AddressProxy } from '../../proxies';
+import { ClassUpdateDto } from '../../dtos';
 
 @CommandHandler(UpdateClassCommand)
 export class UpdateClassHandler implements ICommandHandler<UpdateClassCommand> {
@@ -14,58 +16,66 @@ export class UpdateClassHandler implements ICommandHandler<UpdateClassCommand> {
     private readonly classRepository: ClassRepository,
     private readonly classCategoryRepository: ClassCategoryRepository,
     private readonly classEventDispatcher: ClassEventDispatcher,
+    private readonly addressProxy: AddressProxy,
   ) { }
 
   async execute(command: UpdateClassCommand): Promise<Class> {
     const { id, updateClassDto } = command;
-    const { userMakeRequest, isAdmin, isSystem } = updateClassDto;
+    const existingClass = await this.fetchExistingClass(id);
+    this.validateUpdate(existingClass, updateClassDto);
 
-    // Fetch the existing class
+    this.updateClassStatus(existingClass, updateClassDto.tutorId);
+    await this.updateClassCategories(existingClass, updateClassDto.classCategoryIds);
+    await this.updateClassLocation(existingClass, updateClassDto.address, updateClassDto.wardId);
+
+    return this.saveUpdatedClass(existingClass, updateClassDto, id);
+  }
+
+  private async fetchExistingClass(id: string): Promise<Class> {
     const existingClass = await this.classRepository.findOneBy({ id });
     if (!existingClass) {
       throw new BadRequestException('Class not found.');
     }
+    return existingClass;
+  }
+
+  private validateUpdate(existingClass: Class, updateClassDto: ClassUpdateDto) {
+    const { isSystem, isAdmin, userMakeRequest, isOnline, address, wardId } = updateClassDto;
     if (!isSystem && !isAdmin && existingClass.studentId !== userMakeRequest) {
       throw new ForbiddenException("This class is not yours");
     }
     if (existingClass.status === ClassStatus.CANCELLED) {
       throw new BadRequestException("Cannot modify a cancelled class!");
     }
-
-    // If classCategoryIds are provided, fetch ClassCategory entities
-    if (updateClassDto?.classCategoryIds) {
-      existingClass.classCategories = await validateAndFetchCategories(
-        this.classCategoryRepository,
-        updateClassDto.classCategoryIds,
-      );
-      // Re-generate new title
-      existingClass.title = generateClassTitle(existingClass.classCategories);
+    validateOnlineStatus(isOnline, address, wardId);
+    if (updateClassDto?.tutorId && existingClass.tutorId) {
+      throw new BadRequestException('This class already has a tutor.');
     }
+  }
 
-    // If isOnline is false, check if address and wardId are provided
-    if (
-      updateClassDto?.isOnline === false &&
-      (!updateClassDto?.address || !updateClassDto?.wardId)
-    ) {
-      throw new BadRequestException(
-        'Address and wardId are required for offline classes.',
-      );
-    }
-
-    // If tutorId is provided, ensure that this class has no tutor first
-    if (updateClassDto?.tutorId) {
-      if (existingClass.tutorId) {
-        throw new BadRequestException('This class already has a tutor.');
-      }
+  private updateClassStatus(existingClass: Class, tutorId: string) {
+    if (tutorId) {
       existingClass.status = ClassStatus.ASSIGNED;
     }
+  }
 
-    // Update the class with the provided data
-    const updatedClassData = this.classRepository.merge(
-      existingClass,
-      updateClassDto,
-    );
-    const updatedClass = this.classRepository.save(updatedClassData);
+  private async updateClassCategories(existingClass: Class, classCategoryIds: string[]) {
+    if (classCategoryIds) {
+      existingClass.classCategories = await validateAndFetchCategories(
+        this.classCategoryRepository,
+        classCategoryIds,
+      );
+      existingClass.title = generateClassTitle(existingClass.classCategories);
+    }
+  }
+
+  private async updateClassLocation(existingClass: Class, address: string, wardId: string) {
+    existingClass.location = await getGeocodeObject(this.addressProxy, address, wardId);
+  }
+
+  private async saveUpdatedClass(existingClass: Class, updateClassDto: ClassUpdateDto, id: string): Promise<Class> {
+    const updatedClassData = this.classRepository.merge(existingClass, updateClassDto);
+    const updatedClass = await this.classRepository.save(updatedClassData);
     this.classEventDispatcher.dispatchClassUpdatedEvent(id);
     return updatedClass;
   }
