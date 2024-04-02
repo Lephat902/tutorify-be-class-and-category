@@ -63,7 +63,6 @@ export class Class {
   wardId: string;
 
   @Column({ type: 'geometry', spatialFeatureType: 'Point', nullable: true })
-  @Exclude()
   location: Geometry;
 
   @Column({ default: false })
