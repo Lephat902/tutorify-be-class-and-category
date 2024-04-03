@@ -2,14 +2,15 @@ import { Controller } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
 import { ClassCategory, Level, Subject } from './entities';
 import { ClassCategoryService } from './category.service';
+import { ClassCategoryQueryDto } from './dtos';
 
 @Controller()
 export class ClassCategoryController {
   constructor(private readonly classCategoryService: ClassCategoryService) {}
 
   @MessagePattern({ cmd: 'get_all_categories' })
-  getAll(): Promise<ClassCategory[]> {
-    return this.classCategoryService.findAll();
+  getAll(filters: ClassCategoryQueryDto) {
+    return this.classCategoryService.findAll(filters);
   }
 
   @MessagePattern({ cmd: 'get_whole_category_hierarchy_by_ids' })

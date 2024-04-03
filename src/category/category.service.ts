@@ -15,6 +15,17 @@ import {
   ClassCategoryCreatedEventPayload,
 } from '@tutorify/shared';
 import { Builder } from 'builder-pattern';
+import { ClassCategoryQueryDto } from './dtos';
+import { addGroupByColumns } from './helpers';
+
+type ReturnedLevel = Omit<Level, 'classCategories'>;
+type ReturnedSubject = Omit<Subject, 'classCategories'>;
+type ReturnedClassCategory = {
+  id: string;
+  level: ReturnedLevel;
+  subject: ReturnedSubject;
+  classCount?: number;
+};
 
 @Injectable()
 export class ClassCategoryService {
@@ -25,8 +36,29 @@ export class ClassCategoryService {
     private readonly broadcastService: BroadcastService,
   ) { }
 
-  findAll(): Promise<ClassCategory[]> {
-    return this.classCategoryRepository.find();
+  async findAll(filters: ClassCategoryQueryDto): Promise<ReturnedClassCategory[]> {
+    const { includeClassCount } = filters;
+
+    const query = this.classCategoryRepository
+      .createQueryBuilder('classCategory')
+      .leftJoin('classCategory.subject', 'subject')
+      .leftJoin('classCategory.level', 'level')
+      .select(['classCategory.id', 'subject', 'level']);
+
+    if (includeClassCount) {
+      query
+        .leftJoin('classCategory.classes', 'class')
+        .addSelect('COUNT(class.id)', 'classCount')
+        .orderBy('COUNT(class.id)', 'DESC');
+
+      // Required by AGGREGATE function COUNT
+      addGroupByColumns(query, 'classCategory', this.classCategoryRepository);
+      addGroupByColumns(query, 'level', this.levelRepository);
+      addGroupByColumns(query, 'subject', this.subjectRepository);
+    }
+
+    const result = await query.getRawMany();
+    return this.transformResult(result);
   }
 
   findWholeCategoryHierarchyByIds(ids: string[]): Promise<ClassCategory[]> {
@@ -131,5 +163,20 @@ export class ClassCategoryService {
       event.pattern,
       event.payload,
     );
+  }
+
+  private transformResult(classCategories: any[]): ReturnedClassCategory[] {
+    return classCategories.map(item => ({
+      id: item.classCategory_id,
+      subject: {
+        id: item.subject_id,
+        name: item.subject_name,
+      },
+      level: {
+        id: item.level_id,
+        name: item.level_name,
+      },
+      classCount: item.classCount
+    } as ReturnedClassCategory));
   }
 }
