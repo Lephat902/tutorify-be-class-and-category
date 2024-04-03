@@ -20,12 +20,12 @@ export class ClassRepository extends Repository<Class> {
     if (filters.me)
       this.filterByUserId(classQuery, filters.userId);
     // Location has higher priority than class category
-    this.orderByLocationPriority(classQuery, filters?.tutorPreferences?.location);
-    // classCategoryIds takes precedence over tutorPreferences.classCategoryIds
+    this.orderByLocationPriority(classQuery, filters?.userPreferences?.location);
+    // classCategoryIds takes precedence over userPreferences.classCategoryIds
     if (filters?.classCategoryIds) {
       this.filterByCategoryIds(classQuery, filters.classCategoryIds);
-    } else if (filters?.tutorPreferences?.classCategoryIds) {
-      this.orderByCategoryPriority(classQuery, filters.tutorPreferences.classCategoryIds)
+    } else if (filters?.userPreferences?.classCategoryIds) {
+      this.orderByCategoryPriority(classQuery, filters.userPreferences.classCategoryIds)
     }
     this.filterByIsOnline(classQuery, filters.isOnline);
     this.filterBySubjectIds(classQuery, filters?.subjectIds);
@@ -92,9 +92,8 @@ export class ClassRepository extends Repository<Class> {
     }
   }
 
-  // Make classes that satisfy classCategoryIds to the top of the result, others at last
+  // Make classes that are nearest to the top of the result, others at last
   private orderByLocationPriority(query: SelectQueryBuilder<Class>, location: StoredLocation) {
-    // Assuming classCategoryIds is not empty and is relevant to the query
     if (location) {
       const longitude = location.coordinates[0];
       const latitude = location.coordinates[1];
