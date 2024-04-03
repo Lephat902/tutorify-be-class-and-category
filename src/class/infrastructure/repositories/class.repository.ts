@@ -20,7 +20,7 @@ export class ClassRepository extends Repository<Class> {
     if (filters.me)
       this.filterByUserId(classQuery, filters.userId);
     // Location has higher priority than class category
-    this.orderByLocationPriority(classQuery, filters.tutorPreferences.location);
+    this.orderByLocationPriority(classQuery, filters?.tutorPreferences?.location);
     // classCategoryIds takes precedence over tutorPreferences.classCategoryIds
     if (filters?.classCategoryIds) {
       this.filterByCategoryIds(classQuery, filters.classCategoryIds);
@@ -69,7 +69,7 @@ export class ClassRepository extends Repository<Class> {
 
   // Get only classes that satisfy classCategoryIds
   private filterByCategoryIds(query: SelectQueryBuilder<Class>, classCategoryIds: string[] | undefined) {
-    if (classCategoryIds) {
+    if (classCategoryIds?.length) {
       query.andWhere('classCategories.id IN (:...classCategoryIds)', {
         classCategoryIds,
       });
@@ -79,7 +79,7 @@ export class ClassRepository extends Repository<Class> {
   // Make classes that satisfy classCategoryIds to the top of the result, others at last
   private orderByCategoryPriority(query: SelectQueryBuilder<Class>, classCategoryIds: string[] | undefined) {
     // Assuming classCategoryIds is not empty and is relevant to the query
-    if (classCategoryIds) {
+    if (classCategoryIds?.length) {
       // Apply order by using a CASE statement to prioritize matching category IDs
       query
         .addSelect(`(
@@ -110,13 +110,13 @@ export class ClassRepository extends Repository<Class> {
   }
 
   private filterByIsOnline(query: SelectQueryBuilder<Class>, isOnline: boolean | undefined) {
-    if (isOnline) {
+    if (isOnline !== undefined) {
       query.andWhere('class.isOnline = :isOnline', { isOnline });
     }
   }
 
   private filterBySubjectIds(query: SelectQueryBuilder<Class>, subjectIds: string[] | undefined) {
-    if (subjectIds) {
+    if (subjectIds?.length) {
       query.andWhere('subject.id IN (:...subjectIds)', {
         subjectIds,
       });
@@ -124,7 +124,7 @@ export class ClassRepository extends Repository<Class> {
   }
 
   private filterByLevelIds(query: SelectQueryBuilder<Class>, levelIds: string[] | undefined) {
-    if (levelIds) {
+    if (levelIds?.length) {
       query.andWhere('level.id IN (:...levelIds)', {
         levelIds,
       });
