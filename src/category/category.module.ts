@@ -10,8 +10,9 @@ import {
   SubjectRepository,
 } from './repositories';
 import { BroadcastModule } from '@tutorify/shared';
+import { Class, ClassTimeSlot } from 'src/class/infrastructure/entities';
 
-const entities = [Level, Subject, ClassCategory];
+const entities = [Level, Subject, ClassCategory, Class, ClassTimeSlot];
 
 @Global()
 @Module({

@@ -27,7 +27,7 @@ export class Class {
   @Column({ type: 'enum', enum: ClassStatus, default: ClassStatus.UNASSIGNED })
   status: ClassStatus;
 
-  @ManyToMany(() => ClassCategory, { eager: true })
+  @ManyToMany(() => ClassCategory, (classCategory) => classCategory.classes, { eager: true })
   @JoinTable({ name: 'class_is_of_category' })
   classCategories: ClassCategory[];
 

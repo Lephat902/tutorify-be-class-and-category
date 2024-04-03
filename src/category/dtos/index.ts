@@ -1,0 +1,1 @@
+export * from './class-category-query.dto';

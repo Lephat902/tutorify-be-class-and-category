@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Unique, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Unique, ManyToOne, ManyToMany } from 'typeorm';
 import { Level } from './level.entity';
 import { Subject } from './subject.entity';
+import { Class } from 'src/class/infrastructure/entities';
 
 @Entity()
 @Unique(['subject', 'level'])
@@ -19,4 +20,7 @@ export class ClassCategory {
     eager: true,
   })
   level: Level;
+
+  @ManyToMany(() => Class, (cl) => cl.classCategories)
+  classes: Class[];
 }
