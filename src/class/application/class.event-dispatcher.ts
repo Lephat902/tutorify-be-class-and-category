@@ -8,6 +8,8 @@ import {
   ClassDeletedEventPayload,
   ClassSessionClassVerifiedEvent,
   ClassSessionClassVerifiedEventPayload,
+  ClassSessionDefaultAddressReturnedEvent,
+  ClassSessionDefaultAddressReturnedEventPayload,
   ClassSessionTutorVerifiedEvent,
   ClassSessionTutorVerifiedEventPayload,
   ClassUpdatedEvent,
@@ -16,6 +18,7 @@ import {
 import { Builder } from 'builder-pattern';
 import { Injectable } from '@nestjs/common';
 import { ClassCreateDto } from './dtos';
+import { Class } from '../infrastructure/entities';
 
 @Injectable()
 export class ClassEventDispatcher {
@@ -45,6 +48,23 @@ export class ClassEventDispatcher {
       .isValidClass(isValidClass)
       .build();
     const event = new ClassSessionClassVerifiedEvent(eventPayload);
+    this.broadcastService.broadcastEventToAllMicroservices(
+      event.pattern,
+      event.payload,
+    );
+  }
+
+  dispatchClassSessionDefaultAddressReturned(
+    classSessionId: string,
+    cl: Class,
+  ) {
+    const eventPayload = Builder<ClassSessionDefaultAddressReturnedEventPayload>()
+      .classSessionId(classSessionId)
+      .isOnline(cl.isOnline)
+      .address(cl.address)
+      .wardId(cl.wardId)
+      .build();
+    const event = new ClassSessionDefaultAddressReturnedEvent(eventPayload);
     this.broadcastService.broadcastEventToAllMicroservices(
       event.pattern,
       event.payload,
