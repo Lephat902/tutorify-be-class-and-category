@@ -7,6 +7,8 @@ import {
   ClassApplicationUpdatedEventPayload,
   ClassSessionCreatedEventPattern,
   ClassSessionCreatedEventPayload,
+  ClassSessionDefaultAddressQueryEventPattern,
+  ClassSessionDefaultAddressQueryEventPayload,
   ClassSessionUpdatedEventPattern,
   ClassSessionUpdatedEventPayload,
   ClassStatus,
@@ -34,6 +36,12 @@ export class ClassEventHandlerController {
       tutorId,
       isSystem: true, // use this flag to bypass authorization check
     } as ClassUpdateDto);
+  }
+
+  @EventPattern(new ClassSessionDefaultAddressQueryEventPattern())
+  async handleClassSessionDefaultAddressQuery(payload: ClassSessionDefaultAddressQueryEventPayload) {
+    const { classId, classSessionId } = payload;
+    await this.returnDefaultAddress(classSessionId, classId);
   }
 
   @EventPattern(new ClassSessionCreatedEventPattern())
@@ -73,5 +81,14 @@ export class ClassEventHandlerController {
 
   private isValidTutorToManipulateSession(cl: Class, createSessionTutorId: string) {
     return cl.tutorId === createSessionTutorId;
+  }
+
+  private async returnDefaultAddress(
+    classSessionId: string,
+    classId: string,
+  ) {
+    const classToGetAddress =
+      await this.classService.getClassById(classId);
+    this.eventDispatcher.dispatchClassSessionDefaultAddressReturned(classSessionId, classToGetAddress);
   }
 }
