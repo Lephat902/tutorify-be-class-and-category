@@ -11,9 +11,9 @@ import {
   validateOnlineStatus,
 } from '../../helpers';
 import { ClassEventDispatcher } from '../../class.event-dispatcher';
-import { AddressProxy } from '../../proxies';
 import { ClassCreateDto } from '../../dtos';
 import { ClassCategory } from 'src/category/entities';
+import { AddressProxy } from '@tutorify/shared';
 
 @CommandHandler(CreateClassCommand)
 export class CreateClassHandler implements ICommandHandler<CreateClassCommand> {
