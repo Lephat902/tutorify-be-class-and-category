@@ -1,7 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { GetClassesAndTotalCountQuery } from '../impl';
 import { ClassRepository } from 'src/class/infrastructure/repositories';
-import { UserPreferencesProxy } from '../../proxies';
+import { UserPreferencesProxy } from '@tutorify/shared';
 
 @QueryHandler(GetClassesAndTotalCountQuery)
 export class GetClassesAndTotalCountHandler implements IQueryHandler<GetClassesAndTotalCountQuery> {

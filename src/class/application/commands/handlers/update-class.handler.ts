@@ -6,8 +6,7 @@ import { ClassCategoryRepository } from 'src/category/repositories';
 import { Class } from 'src/class/infrastructure/entities';
 import { generateClassTitle, getGeocodeObject, validateAndFetchCategories, validateOnlineStatus } from '../../helpers';
 import { ClassEventDispatcher } from '../../class.event-dispatcher';
-import { ClassStatus } from '@tutorify/shared';
-import { AddressProxy } from '../../proxies';
+import { AddressProxy, ClassStatus } from '@tutorify/shared';
 import { ClassUpdateDto } from '../../dtos';
 
 @CommandHandler(UpdateClassCommand)

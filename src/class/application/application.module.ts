@@ -5,11 +5,10 @@ import { QueryHandlers } from './queries/handlers';
 import { ClassService } from './class.service';
 import { ClassController, ClassEventHandlerController } from './controllers';
 import { InfrastructureModule } from '../infrastructure/infrastructure.module';
-import { BroadcastModule, QueueNames } from '@tutorify/shared';
+import { BroadcastModule, QueueNames, UserPreferencesProxy, AddressProxy } from '@tutorify/shared';
 import { ClassEventDispatcher } from './class.event-dispatcher';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
-import { Proxies } from './proxies';
 
 @Module({
   imports: [
@@ -53,7 +52,8 @@ import { Proxies } from './proxies';
     ...QueryHandlers,
     ClassService,
     ClassEventDispatcher,
-    ...Proxies,
+    UserPreferencesProxy,
+    AddressProxy,
   ],
 })
 export class ApplicationModule { }
