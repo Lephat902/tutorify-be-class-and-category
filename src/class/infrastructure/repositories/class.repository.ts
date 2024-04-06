@@ -20,7 +20,9 @@ export class ClassRepository extends Repository<Class> {
     if (filters.me)
       this.filterByUserId(classQuery, filters.userId);
     // Location has higher priority than class category
-    this.orderByLocationPriority(classQuery, filters?.userPreferences?.location);
+    const locationToOrder = filters.location || filters?.userPreferences?.location;
+    if (locationToOrder)
+      this.orderByLocationPriority(classQuery, locationToOrder);
     // classCategoryIds takes precedence over userPreferences.classCategoryIds
     if (filters?.classCategoryIds) {
       this.filterByCategoryIds(classQuery, filters.classCategoryIds);
