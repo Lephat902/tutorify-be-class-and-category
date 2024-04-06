@@ -23,9 +23,14 @@ export class ClassQueryDto extends IntersectionType(
   readonly includeHidden: boolean;
   readonly statuses: ClassStatus[];
   readonly isOnline: boolean;
+  readonly wardId: string;
+  readonly districtId: string;
+  readonly provinceId: string;
   // About user
   readonly userId: string;
   readonly me: boolean;
   readonly isTutor: boolean;
   readonly isStudent: boolean;
+  // Not user's input
+  location: StoredLocation;
 }

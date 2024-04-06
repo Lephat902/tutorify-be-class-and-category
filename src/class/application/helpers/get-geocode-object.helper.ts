@@ -8,7 +8,7 @@ export async function getGeocodeObject(addressProxy: AddressProxy, address: stri
         if (geocode) {
             return {
                 type: 'Point',
-                coordinates: [parseFloat(geocode.lon), parseFloat(geocode.lat)]
+                coordinates: [geocode.lon, geocode.lat]
             }
         }
     }
