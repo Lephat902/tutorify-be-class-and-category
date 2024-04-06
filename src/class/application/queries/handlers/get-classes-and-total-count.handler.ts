@@ -14,8 +14,10 @@ export class GetClassesAndTotalCountHandler implements IQueryHandler<GetClassesA
 
   async execute(query: GetClassesAndTotalCountQuery) {
     const { filters } = query;
-    await this.setUserPreferences(filters);
-    await this.setLocation(filters);
+    await Promise.allSettled([
+      this.setUserPreferences(filters),
+      this.setLocation(filters),
+    ]);
     return this.classRepository.getClassesAndTotalCount(filters);
   }
 
