@@ -17,6 +17,7 @@ import {
 import { Builder } from 'builder-pattern';
 import { ClassCategoryQueryDto } from './dtos';
 import { addGroupByColumns } from './helpers';
+import { SelectQueryBuilder } from 'typeorm';
 
 type ReturnedLevel = Omit<Level, 'classCategories'>;
 type ReturnedSubject = Omit<Subject, 'classCategories'>;
@@ -37,6 +38,12 @@ export class ClassCategoryService {
   ) { }
 
   async findAll(filters: ClassCategoryQueryDto): Promise<ReturnedClassCategory[]> {
+    const query = this.buildFindAllQuery(filters);
+    const result = await query.getRawMany();
+    return this.transformResults(result);
+  }
+
+  private buildFindAllQuery(filters: ClassCategoryQueryDto): SelectQueryBuilder<ClassCategory> {
     const { includeClassCount } = filters;
 
     const query = this.classCategoryRepository
@@ -57,8 +64,7 @@ export class ClassCategoryService {
       addGroupByColumns(query, 'subject', this.subjectRepository);
     }
 
-    const result = await query.getRawMany();
-    return this.transformResult(result);
+    return query;
   }
 
   findWholeCategoryHierarchyByIds(ids: string[]): Promise<ClassCategory[]> {
@@ -70,8 +76,13 @@ export class ClassCategoryService {
       .getMany();
   }
 
-  getCategoryById(id: string) {
-    return this.classCategoryRepository.findOneBy({ id });
+  async getCategoryById(id: string) {
+    const findAllQuery = this.buildFindAllQuery({
+      includeClassCount: true,
+    });
+    findAllQuery.andWhere('classCategory.id = :id', { id });
+    const result = await findAllQuery.getRawOne();
+    return this.transformResult(result);
   }
 
   findAllSubjects(): Promise<Subject[]> {
@@ -165,18 +176,22 @@ export class ClassCategoryService {
     );
   }
 
-  private transformResult(classCategories: any[]): ReturnedClassCategory[] {
-    return classCategories.map(item => ({
-      id: item.classCategory_id,
+  private transformResults(classCategories: any[]): ReturnedClassCategory[] {
+    return classCategories.map(item => this.transformResult(item));
+  }
+
+  private transformResult(classCategory: any): ReturnedClassCategory {
+    return {
+      id: classCategory.classCategory_id,
       subject: {
-        id: item.subject_id,
-        name: item.subject_name,
+        id: classCategory.subject_id,
+        name: classCategory.subject_name,
       },
       level: {
-        id: item.level_id,
-        name: item.level_name,
+        id: classCategory.level_id,
+        name: classCategory.level_name,
       },
-      classCount: item.classCount
-    } as ReturnedClassCategory));
+      classCount: classCategory.classCount
+    } as ReturnedClassCategory
   }
 }

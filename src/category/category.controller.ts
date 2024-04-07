@@ -19,7 +19,7 @@ export class ClassCategoryController {
   }
 
   @MessagePattern({ cmd: 'get_category_by_id' })
-  getCategoryById(id: string): Promise<ClassCategory> {
+  getCategoryById(id: string) {
     return this.classCategoryService.getCategoryById(id);
   }
 
