@@ -17,8 +17,8 @@ export class ClassRepository extends Repository<Class> {
     console.log(filters)
 
     // Apply filters to query 
-    if (filters.me)
-      this.filterByUserId(classQuery, filters.userId);
+    if (filters.userIdToGetClasses)
+      this.filterByUserId(classQuery, filters.userIdToGetClasses);
     // Location has higher priority than class category
     const locationToOrder = filters.location || filters?.userPreferences?.location;
     if (locationToOrder)
