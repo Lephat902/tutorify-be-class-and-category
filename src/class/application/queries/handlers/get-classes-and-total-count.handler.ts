@@ -25,8 +25,8 @@ export class GetClassesAndTotalCountHandler implements IQueryHandler<GetClassesA
     // Get user preferences in case:
     // 1. He is an authenticated user which has his own preferences profile
     // 2. He doesn't try to get classes of a specific user (maybe himself)
-    if (filters?.userId && !filters?.userIdToGetClasses) {
-      const userPreferencesData = await this.userPreferencesProxy.getUserPreferencesByUserId(filters.userId, 1000);
+    if (filters.userMakeRequest?.userId && !filters.userIdToGetClasses) {
+      const userPreferencesData = await this.userPreferencesProxy.getUserPreferencesByUserId(filters.userMakeRequest.userId, 1000);
       filters.userPreferences = userPreferencesData?.preferences;
     }
   }

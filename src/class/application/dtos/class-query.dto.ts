@@ -5,6 +5,7 @@ import {
   ClassOrderBy,
   ClassStatus,
   StoredLocation,
+  UserMakeRequest,
 } from '@tutorify/shared';
 
 export class ClassQueryDto extends IntersectionType(
@@ -28,9 +29,7 @@ export class ClassQueryDto extends IntersectionType(
   readonly provinceId: string;
   readonly userIdToGetClasses: string;
   // About user
-  readonly userId: string;
-  readonly isTutor: boolean;
-  readonly isStudent: boolean;
+  readonly userMakeRequest: UserMakeRequest;
   // Not user's input
   location: StoredLocation;
 }
