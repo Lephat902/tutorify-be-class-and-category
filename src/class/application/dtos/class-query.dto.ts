@@ -26,9 +26,9 @@ export class ClassQueryDto extends IntersectionType(
   readonly wardId: string;
   readonly districtId: string;
   readonly provinceId: string;
+  readonly userIdToGetClasses: string;
   // About user
   readonly userId: string;
-  readonly me: boolean;
   readonly isTutor: boolean;
   readonly isStudent: boolean;
   // Not user's input
