@@ -14,13 +14,14 @@ export class ClassQueryDto extends IntersectionType(
 ) {
   readonly q: string;
   readonly order: ClassOrderBy;
-  readonly classCategoryIds: string[] = [];
+  readonly ids: string[];
+  readonly classCategoryIds: string[];
   userPreferences: {
     classCategoryIds: string[];
     location: StoredLocation;
   };
-  readonly subjectIds: string[] = [];
-  readonly levelIds: string[] = [];
+  readonly subjectIds: string[];
+  readonly levelIds: string[];
   readonly includeHidden: boolean;
   readonly statuses: ClassStatus[];
   readonly isOnline: boolean;

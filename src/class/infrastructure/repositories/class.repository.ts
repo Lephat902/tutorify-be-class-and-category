@@ -14,11 +14,11 @@ export class ClassRepository extends Repository<Class> {
     filters: ClassQueryDto
   ): Promise<{ results: Class[], totalCount: number }> {
     const classQuery = this.createQueryBuilderWithEagerLoading();
-    console.log(filters)
+    console.log(filters);
 
-    // Apply filters to query 
-    if (filters.userIdToGetClasses)
-      this.filterByUserId(classQuery, filters.userIdToGetClasses);
+    // Apply filters to query
+    this.filterByUserId(classQuery, filters.userIdToGetClasses);
+    this.filterByIds(classQuery, filters.ids);
     // Location has higher priority than class category
     const locationToOrder = filters.location || filters?.userPreferences?.location;
     if (locationToOrder)
@@ -65,6 +65,14 @@ export class ClassRepository extends Repository<Class> {
     if (userId) {
       query.andWhere('(class.studentId = :userId OR class.tutorId = :userId)', {
         userId,
+      });
+    }
+  }
+
+  private filterByIds(query: SelectQueryBuilder<Class>, ids: string[] | undefined) {
+    if (ids?.length) {
+      query.andWhere('class.id IN (:...ids)', {
+        ids,
       });
     }
   }
