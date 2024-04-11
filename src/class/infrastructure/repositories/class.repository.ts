@@ -37,6 +37,8 @@ export class ClassRepository extends Repository<Class> {
     this.paginateResults(classQuery, filters.page, filters.limit);
     this.filterByVisibility(classQuery, filters.includeHidden);
     this.filterByStatuses(classQuery, filters.statuses);
+    this.filterByCreatedAtMin(classQuery, filters.createdAtMin);
+    this.filterByCreatedAtMax(classQuery, filters.createdAtMax);
 
     // Execute query to get results
     const [results, totalCount] = await classQuery.getManyAndCount();
@@ -169,6 +171,22 @@ export class ClassRepository extends Repository<Class> {
     if (statuses !== undefined) {
       query.andWhere('class.status IN (:...statuses)', {
         statuses
+      });
+    }
+  }
+
+  private filterByCreatedAtMin(query: SelectQueryBuilder<Class>, createdAtMin: Date | undefined) {
+    if (createdAtMin) {
+      query.andWhere('class.createdAt >= :createdAtMin', {
+        createdAtMin
+      });
+    }
+  }
+
+  private filterByCreatedAtMax(query: SelectQueryBuilder<Class>, createdAtMax: Date | undefined) {
+    if (createdAtMax) {
+      query.andWhere('class.createdAt <= :createdAtMax', {
+        createdAtMax
       });
     }
   }
