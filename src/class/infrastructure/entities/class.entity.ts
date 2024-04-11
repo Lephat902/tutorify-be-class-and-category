@@ -10,7 +10,6 @@ import {
 import { Geometry } from 'geojson';
 import { ClassCategory } from 'src/category/entities';
 import { ClassStatus, GenderPref, TutorPositionPref } from '@tutorify/shared';
-import { Exclude } from 'class-transformer';
 import { ClassTimeSlot } from './class-timeslot.entity';
 
 @Entity()
@@ -41,7 +40,6 @@ export class Class {
   createdAt: Date;
 
   @Column({ default: false })
-  @Exclude()
   isHidden: boolean;
 
   @Column({ nullable: true })
