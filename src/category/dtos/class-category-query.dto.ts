@@ -1,3 +1,5 @@
 export class ClassCategoryQueryDto {
-    includeClassCount: boolean;
+    readonly includeClassCount?: boolean;
+    readonly classCreatedAtMin?: Date;
+    readonly classCreatedAtMax?: Date;
 }

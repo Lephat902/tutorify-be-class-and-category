@@ -44,7 +44,7 @@ export class ClassCategoryService {
   }
 
   private buildFindAllQuery(filters: ClassCategoryQueryDto): SelectQueryBuilder<ClassCategory> {
-    const { includeClassCount } = filters;
+    const { includeClassCount, classCreatedAtMin, classCreatedAtMax } = filters;
 
     const query = this.classCategoryRepository
       .createQueryBuilder('classCategory')
@@ -62,6 +62,18 @@ export class ClassCategoryService {
       addGroupByColumns(query, 'classCategory', this.classCategoryRepository);
       addGroupByColumns(query, 'level', this.levelRepository);
       addGroupByColumns(query, 'subject', this.subjectRepository);
+
+      if (classCreatedAtMin) {
+        query.andWhere('class.createdAt >= :classCreatedAtMin', {
+          classCreatedAtMin
+        });
+      }
+
+      if (classCreatedAtMax) {
+        query.andWhere('class.createdAt <= :classCreatedAtMax', {
+          classCreatedAtMax
+        });
+      }
     }
 
     return query;
