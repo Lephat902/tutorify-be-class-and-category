@@ -56,7 +56,7 @@ export class ClassCategoryService {
       query
         .leftJoin('classCategory.classes', 'class')
         .addSelect('COUNT(class.id)', 'classCount')
-        .orderBy('COUNT(class.id)', 'DESC');
+        .addOrderBy('COUNT(class.id)', 'DESC');
 
       // Required by AGGREGATE function COUNT
       addGroupByColumns(query, 'classCategory', this.classCategoryRepository);
@@ -75,6 +75,11 @@ export class ClassCategoryService {
         });
       }
     }
+
+    // Automatically order by subject name and then level name
+    query
+      .addOrderBy('subject.name', 'ASC')
+      .addOrderBy('level.name', 'ASC');
 
     return query;
   }
