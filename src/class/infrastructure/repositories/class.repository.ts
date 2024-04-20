@@ -39,6 +39,8 @@ export class ClassRepository extends Repository<Class> {
     this.filterByStatuses(classQuery, filters.statuses);
     this.filterByCreatedAtMin(classQuery, filters.createdAtMin);
     this.filterByCreatedAtMax(classQuery, filters.createdAtMax);
+    this.filterByWageMin(classQuery, filters.minWage);
+    this.filterByWageMax(classQuery, filters.maxWage);
 
     // Execute query to get results
     const [results, totalCount] = await classQuery.getManyAndCount();
@@ -187,6 +189,22 @@ export class ClassRepository extends Repository<Class> {
     if (createdAtMax) {
       query.andWhere('class.createdAt <= :createdAtMax', {
         createdAtMax
+      });
+    }
+  }
+
+  private filterByWageMin(query: SelectQueryBuilder<Class>, minWage: number | undefined) {
+    if (minWage) {
+      query.andWhere('class.wages >= :minWage', {
+        minWage
+      });
+    }
+  }
+
+  private filterByWageMax(query: SelectQueryBuilder<Class>, maxWage: number | undefined) {
+    if (maxWage) {
+      query.andWhere('class.wages <= :maxWage', {
+        maxWage
       });
     }
   }

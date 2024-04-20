@@ -31,6 +31,8 @@ export class ClassQueryDto extends IntersectionType(
   readonly userIdToGetClasses: string;
   readonly createdAtMin: Date;
   readonly createdAtMax: Date;
+  readonly minWage: number;
+  readonly maxWage: number;
   // About user
   readonly userMakeRequest: UserMakeRequest;
   // Not user's input
