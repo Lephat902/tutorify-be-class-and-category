@@ -6,12 +6,12 @@ import {
   ClassCreatedEventPayload,
   ClassDeletedEvent,
   ClassDeletedEventPayload,
-  ClassSessionClassVerifiedEvent,
-  ClassSessionClassVerifiedEventPayload,
+  ClassSessionClassVerifiedResponseEvent,
+  ClassSessionClassVerifiedResponseEventPayload,
   ClassSessionDefaultAddressReturnedEvent,
   ClassSessionDefaultAddressReturnedEventPayload,
-  ClassSessionTutorVerifiedEvent,
-  ClassSessionTutorVerifiedEventPayload,
+  ClassSessionTutorVerifiedResponseEvent,
+  ClassSessionTutorVerifiedResponseEventPayload,
   ClassUpdatedEvent,
   ClassUpdatedEventPayload,
 } from '@tutorify/shared';
@@ -28,11 +28,11 @@ export class ClassEventDispatcher {
     classSessionId: string,
     isValidTutor: boolean,
   ) {
-    const eventPayload = Builder<ClassSessionTutorVerifiedEventPayload>()
+    const eventPayload = Builder<ClassSessionTutorVerifiedResponseEventPayload>()
       .classSessionId(classSessionId)
       .isValidTutor(isValidTutor)
       .build();
-    const event = new ClassSessionTutorVerifiedEvent(eventPayload);
+    const event = new ClassSessionTutorVerifiedResponseEvent(eventPayload);
     this.broadcastService.broadcastEventToAllMicroservices(
       event.pattern,
       event.payload,
@@ -43,11 +43,11 @@ export class ClassEventDispatcher {
     classSessionId: string,
     isValidClass: boolean,
   ) {
-    const eventPayload = Builder<ClassSessionClassVerifiedEventPayload>()
+    const eventPayload = Builder<ClassSessionClassVerifiedResponseEventPayload>()
       .classSessionId(classSessionId)
       .isValidClass(isValidClass)
       .build();
-    const event = new ClassSessionClassVerifiedEvent(eventPayload);
+    const event = new ClassSessionClassVerifiedResponseEvent(eventPayload);
     this.broadcastService.broadcastEventToAllMicroservices(
       event.pattern,
       event.payload,

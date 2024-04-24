@@ -5,12 +5,12 @@ import {
   ApplicationStatus,
   ClassApplicationUpdatedEventPattern,
   ClassApplicationUpdatedEventPayload,
-  ClassSessionCreatedEventPattern,
-  ClassSessionCreatedEventPayload,
+  ClassSessionPendingCreatedEventPattern,
+  ClassSessionPendingCreatedEventPayload,
   ClassSessionDefaultAddressQueryEventPattern,
   ClassSessionDefaultAddressQueryEventPayload,
-  ClassSessionUpdatedEventPattern,
-  ClassSessionUpdatedEventPayload,
+  ClassSessionPendingUpdatedEventPattern,
+  ClassSessionPendingUpdatedEventPayload,
   ClassStatus,
 } from '@tutorify/shared';
 import { ClassEventDispatcher } from '../class.event-dispatcher';
@@ -44,14 +44,14 @@ export class ClassEventHandlerController {
     await this.returnDefaultAddress(classSessionId, classId);
   }
 
-  @EventPattern(new ClassSessionCreatedEventPattern())
-  async handleClassSessionCreated(payload: ClassSessionCreatedEventPayload) {
+  @EventPattern(new ClassSessionPendingCreatedEventPattern())
+  async handleClassSessionCreated(payload: ClassSessionPendingCreatedEventPayload) {
     const { classId, classSessionId, createSessionTutorId } = payload;
     await this.validateClassSessionChanges(classSessionId, classId, createSessionTutorId);
   }
 
-  @EventPattern(new ClassSessionUpdatedEventPattern())
-  async handleClassSessionUpdated(payload: ClassSessionUpdatedEventPayload) {
+  @EventPattern(new ClassSessionPendingUpdatedEventPattern())
+  async handleClassSessionUpdated(payload: ClassSessionPendingUpdatedEventPayload) {
     const { classSessionId, updateSessionTutorId, classId } = payload;
     await this.validateClassSessionChanges(classSessionId, classId, updateSessionTutorId);
   }
