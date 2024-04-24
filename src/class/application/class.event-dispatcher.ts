@@ -6,12 +6,8 @@ import {
   ClassCreatedEventPayload,
   ClassDeletedEvent,
   ClassDeletedEventPayload,
-  ClassSessionClassVerifiedResponseEvent,
-  ClassSessionClassVerifiedResponseEventPayload,
   ClassSessionDefaultAddressReturnedEvent,
   ClassSessionDefaultAddressReturnedEventPayload,
-  ClassSessionTutorVerifiedResponseEvent,
-  ClassSessionTutorVerifiedResponseEventPayload,
   ClassUpdatedEvent,
   ClassUpdatedEventPayload,
 } from '@tutorify/shared';
@@ -23,36 +19,6 @@ import { Class } from '../infrastructure/entities';
 @Injectable()
 export class ClassEventDispatcher {
   constructor(private readonly broadcastService: BroadcastService) {}
-
-  dispatchClassSessionTutorVerified(
-    classSessionId: string,
-    isValidTutor: boolean,
-  ) {
-    const eventPayload = Builder<ClassSessionTutorVerifiedResponseEventPayload>()
-      .classSessionId(classSessionId)
-      .isValidTutor(isValidTutor)
-      .build();
-    const event = new ClassSessionTutorVerifiedResponseEvent(eventPayload);
-    this.broadcastService.broadcastEventToAllMicroservices(
-      event.pattern,
-      event.payload,
-    );
-  }
-
-  dispatchClassSessionClassVerified(
-    classSessionId: string,
-    isValidClass: boolean,
-  ) {
-    const eventPayload = Builder<ClassSessionClassVerifiedResponseEventPayload>()
-      .classSessionId(classSessionId)
-      .isValidClass(isValidClass)
-      .build();
-    const event = new ClassSessionClassVerifiedResponseEvent(eventPayload);
-    this.broadcastService.broadcastEventToAllMicroservices(
-      event.pattern,
-      event.payload,
-    );
-  }
 
   dispatchClassSessionDefaultAddressReturned(
     classSessionId: string,
