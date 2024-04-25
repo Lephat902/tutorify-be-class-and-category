@@ -10,6 +10,7 @@ import {
   ClassSessionDefaultAddressReturnedEventPayload,
   ClassUpdatedEvent,
   ClassUpdatedEventPayload,
+  QueueNames,
 } from '@tutorify/shared';
 import { Builder } from 'builder-pattern';
 import { Injectable } from '@nestjs/common';
@@ -31,9 +32,10 @@ export class ClassEventDispatcher {
       .wardId(cl.wardId)
       .build();
     const event = new ClassSessionDefaultAddressReturnedEvent(eventPayload);
-    this.broadcastService.broadcastEventToAllMicroservices(
+    this.broadcastService.broadcastEventToSelectMicroservices(
       event.pattern,
       event.payload,
+      [QueueNames.CLASS_SESSION],
     );
   }
 
