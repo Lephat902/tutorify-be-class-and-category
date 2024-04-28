@@ -13,6 +13,7 @@ import {
   BroadcastService,
   ClassCategoryCreatedEvent,
   ClassCategoryCreatedEventPayload,
+  ClassStatus,
 } from '@tutorify/shared';
 import { Builder } from 'builder-pattern';
 import { ClassCategoryQueryDto } from './dtos';
@@ -44,7 +45,7 @@ export class ClassCategoryService {
   }
 
   private buildFindAllQuery(filters: ClassCategoryQueryDto): SelectQueryBuilder<ClassCategory> {
-    const { includeClassCount, classCreatedAtMin, classCreatedAtMax } = filters;
+    const { statuses, includeHidden, includeClassCount, classCreatedAtMin, classCreatedAtMax } = filters;
 
     const query = this.classCategoryRepository
       .createQueryBuilder('classCategory')
@@ -63,9 +64,18 @@ export class ClassCategoryService {
       addGroupByColumns(query, 'level', this.levelRepository);
       addGroupByColumns(query, 'subject', this.subjectRepository);
 
+      this.filterByStatuses(query, statuses);
+      this.filterByVisibility(query, includeHidden);
+
       if (classCreatedAtMin) {
         query.andWhere('class.createdAt >= :classCreatedAtMin', {
           classCreatedAtMin
+        });
+      }
+
+      if (classCreatedAtMax) {
+        query.andWhere('class.createdAt <= :classCreatedAtMax', {
+          classCreatedAtMax
         });
       }
 
@@ -82,6 +92,20 @@ export class ClassCategoryService {
       .addOrderBy('level.name', 'ASC');
 
     return query;
+  }
+
+  private filterByStatuses(query: SelectQueryBuilder<ClassCategory>, statuses: ClassStatus[] | undefined) {
+    if (statuses !== undefined) {
+      query.andWhere('class.status IN (:...statuses)', {
+        statuses
+      });
+    }
+  }
+
+  private filterByVisibility(query: SelectQueryBuilder<ClassCategory>, includeHidden: boolean | undefined) {
+    if (!includeHidden) {
+      query.andWhere('class.isHidden = :isHidden', { isHidden: false });
+    }
   }
 
   findWholeCategoryHierarchyByIds(ids: string[]): Promise<ClassCategory[]> {
