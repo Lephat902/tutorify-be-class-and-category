@@ -18,7 +18,7 @@ import {
 import { Builder } from 'builder-pattern';
 import { ClassCategoryQueryDto } from './dtos';
 import { addGroupByColumns } from './helpers';
-import { SelectQueryBuilder } from 'typeorm';
+import { Brackets, SelectQueryBuilder } from 'typeorm';
 
 type ReturnedLevel = Omit<Level, 'classCategories'>;
 type ReturnedSubject = Omit<Subject, 'classCategories'>;
@@ -45,13 +45,15 @@ export class ClassCategoryService {
   }
 
   private buildFindAllQuery(filters: ClassCategoryQueryDto): SelectQueryBuilder<ClassCategory> {
-    const { statuses, includeHidden, includeClassCount, classCreatedAtMin, classCreatedAtMax } = filters;
+    const { classStatuses, includeHiddenClass, includeClassCount, classCreatedAtMin, classCreatedAtMax } = filters;
 
     const query = this.classCategoryRepository
       .createQueryBuilder('classCategory')
       .leftJoin('classCategory.subject', 'subject')
       .leftJoin('classCategory.level', 'level')
       .select(['classCategory.id', 'subject', 'level']);
+
+    this.filterBySearchQuery(query, filters.q);
 
     if (includeClassCount) {
       query
@@ -64,8 +66,8 @@ export class ClassCategoryService {
       addGroupByColumns(query, 'level', this.levelRepository);
       addGroupByColumns(query, 'subject', this.subjectRepository);
 
-      this.filterByStatuses(query, statuses);
-      this.filterByVisibility(query, includeHidden);
+      this.filterByClassStatuses(query, classStatuses);
+      this.filterByClassVisibility(query, includeHiddenClass);
 
       if (classCreatedAtMin) {
         query.andWhere('class.createdAt >= :classCreatedAtMin', {
@@ -94,7 +96,18 @@ export class ClassCategoryService {
     return query;
   }
 
-  private filterByStatuses(query: SelectQueryBuilder<ClassCategory>, statuses: ClassStatus[] | undefined) {
+  private filterBySearchQuery(query: SelectQueryBuilder<ClassCategory>, q: string | undefined) {
+    if (q) {
+      query.andWhere(
+        new Brackets((qb) => {
+          qb.where('subject.name ILIKE :q', { q: `%${q}%` })
+            .orWhere('level.name ILIKE :q', { q: `%${q}%` });
+        }),
+      );
+    }
+  }
+
+  private filterByClassStatuses(query: SelectQueryBuilder<ClassCategory>, statuses: ClassStatus[] | undefined) {
     if (statuses !== undefined) {
       query.andWhere('class.status IN (:...statuses)', {
         statuses
@@ -102,7 +115,7 @@ export class ClassCategoryService {
     }
   }
 
-  private filterByVisibility(query: SelectQueryBuilder<ClassCategory>, includeHidden: boolean | undefined) {
+  private filterByClassVisibility(query: SelectQueryBuilder<ClassCategory>, includeHidden: boolean | undefined) {
     if (!includeHidden) {
       query.andWhere('class.isHidden = :isHidden', { isHidden: false });
     }
