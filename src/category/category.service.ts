@@ -91,7 +91,8 @@ export class ClassCategoryService {
     // Automatically order by subject name and then level name
     query
       .addOrderBy('subject.name', 'ASC')
-      .addOrderBy('level.name', 'ASC');
+      .addSelect('CAST(SUBSTRING(level.name, 1) AS INTEGER)', 'numeric_name')
+      .addOrderBy('numeric_name', 'ASC');
 
     return query;
   }
