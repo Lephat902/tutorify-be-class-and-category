@@ -11,6 +11,8 @@ import {
 } from './repositories';
 import { BroadcastModule } from '@tutorify/shared';
 import { Class, ClassTimeSlot } from 'src/class/infrastructure/entities';
+import { addTransactionalDataSource } from 'typeorm-transactional';
+import { DataSource } from 'typeorm';
 
 const entities = [Level, Subject, ClassCategory, Class, ClassTimeSlot];
 
@@ -24,8 +26,16 @@ const entities = [Level, Subject, ClassCategory, Class, ClassTimeSlot];
         url: configService.get('DATABASE_URI'),
         entities,
         synchronize: true,
+        logging: true,
       }),
       inject: [ConfigService],
+      async dataSourceFactory(options) {
+        if (!options) {
+          throw new Error('Invalid options passed');
+        }
+
+        return addTransactionalDataSource(new DataSource(options));
+      },
     }),
     BroadcastModule,
   ],

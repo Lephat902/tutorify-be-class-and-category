@@ -18,7 +18,7 @@ import {
 import { Builder } from 'builder-pattern';
 import { ClassCategoryQueryDto } from './dtos';
 import { addGroupByColumns } from './helpers';
-import { Brackets, SelectQueryBuilder, Transaction } from 'typeorm';
+import { Brackets, SelectQueryBuilder } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
 
 type ReturnedLevel = Omit<Level, 'classCategories'>;
@@ -271,21 +271,32 @@ export class ClassCategoryService {
 
   @Transactional()
   async insertMultiple(name: string): Promise<ClassCategory[]> {
-    const getAllLevelsPromise = this.levelRepository.find();
-    const savedSubjectPromise = this.subjectRepository.save({
+    await this.subjectRepository.upsert(
+      {
+        name,
+      },
+      ['name'],
+    );
+
+    const subjectPromise = this.subjectRepository.findOneBy({
       name,
     });
 
-    const [savedSubject, levels] = await Promise.all([
-      savedSubjectPromise,
-      getAllLevelsPromise,
+    const levelsPromise = this.levelRepository.find();
+
+    const [subject, levels] = await Promise.all([
+      subjectPromise,
+      levelsPromise,
     ]);
 
-    return this.classCategoryRepository.save(
+    await this.classCategoryRepository.upsert(
       levels.map((level) => ({
-        subject: savedSubject,
+        subject,
         level,
       })),
+      ['subject', 'level'],
     );
+
+    return this.classCategoryRepository.find();
   }
 }

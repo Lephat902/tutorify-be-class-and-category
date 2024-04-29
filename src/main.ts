@@ -4,8 +4,11 @@ import { AppModule } from './app.module';
 import { GlobalExceptionsFilter } from './global-exception-filter';
 import { ClassSerializerInterceptor } from '@nestjs/common';
 import { QueueNames } from '@tutorify/shared';
+import { initializeTransactionalContext } from 'typeorm-transactional';
 
 async function bootstrap() {
+  initializeTransactionalContext();
+
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     AppModule,
     {
