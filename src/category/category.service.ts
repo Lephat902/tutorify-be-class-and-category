@@ -18,7 +18,8 @@ import {
 import { Builder } from 'builder-pattern';
 import { ClassCategoryQueryDto } from './dtos';
 import { addGroupByColumns } from './helpers';
-import { Brackets, SelectQueryBuilder } from 'typeorm';
+import { Brackets, SelectQueryBuilder, Transaction } from 'typeorm';
+import { Transactional } from 'typeorm-transactional';
 
 type ReturnedLevel = Omit<Level, 'classCategories'>;
 type ReturnedSubject = Omit<Subject, 'classCategories'>;
@@ -36,16 +37,26 @@ export class ClassCategoryService {
     private readonly levelRepository: LevelRepository,
     private readonly subjectRepository: SubjectRepository,
     private readonly broadcastService: BroadcastService,
-  ) { }
+  ) {}
 
-  async findAll(filters: ClassCategoryQueryDto): Promise<ReturnedClassCategory[]> {
+  async findAll(
+    filters: ClassCategoryQueryDto,
+  ): Promise<ReturnedClassCategory[]> {
     const query = this.buildFindAllQuery(filters);
     const result = await query.getRawMany();
     return this.transformResults(result);
   }
 
-  private buildFindAllQuery(filters: ClassCategoryQueryDto): SelectQueryBuilder<ClassCategory> {
-    const { classStatuses, includeHiddenClass, includeClassCount, classCreatedAtMin, classCreatedAtMax } = filters;
+  private buildFindAllQuery(
+    filters: ClassCategoryQueryDto,
+  ): SelectQueryBuilder<ClassCategory> {
+    const {
+      classStatuses,
+      includeHiddenClass,
+      includeClassCount,
+      classCreatedAtMin,
+      classCreatedAtMax,
+    } = filters;
 
     const query = this.classCategoryRepository
       .createQueryBuilder('classCategory')
@@ -71,51 +82,60 @@ export class ClassCategoryService {
 
       if (classCreatedAtMin) {
         query.andWhere('class.createdAt >= :classCreatedAtMin', {
-          classCreatedAtMin
+          classCreatedAtMin,
         });
       }
 
       if (classCreatedAtMax) {
         query.andWhere('class.createdAt <= :classCreatedAtMax', {
-          classCreatedAtMax
+          classCreatedAtMax,
         });
       }
 
       if (classCreatedAtMax) {
         query.andWhere('class.createdAt <= :classCreatedAtMax', {
-          classCreatedAtMax
+          classCreatedAtMax,
         });
       }
     }
 
     // Automatically order by subject name and then level name
-    query
-      .addOrderBy('subject.name', 'ASC')
-      .addOrderBy('level.name', 'ASC');
+    query.addOrderBy('subject.name', 'ASC').addOrderBy('level.name', 'ASC');
 
     return query;
   }
 
-  private filterBySearchQuery(query: SelectQueryBuilder<ClassCategory>, q: string | undefined) {
+  private filterBySearchQuery(
+    query: SelectQueryBuilder<ClassCategory>,
+    q: string | undefined,
+  ) {
     if (q) {
       query.andWhere(
         new Brackets((qb) => {
-          qb.where('subject.name ILIKE :q', { q: `%${q}%` })
-            .orWhere('level.name ILIKE :q', { q: `%${q}%` });
+          qb.where('subject.name ILIKE :q', { q: `%${q}%` }).orWhere(
+            'level.name ILIKE :q',
+            { q: `%${q}%` },
+          );
         }),
       );
     }
   }
 
-  private filterByClassStatuses(query: SelectQueryBuilder<ClassCategory>, statuses: ClassStatus[] | undefined) {
+  private filterByClassStatuses(
+    query: SelectQueryBuilder<ClassCategory>,
+    statuses: ClassStatus[] | undefined,
+  ) {
     if (statuses !== undefined) {
       query.andWhere('class.status IN (:...statuses)', {
-        statuses
+        statuses,
       });
     }
   }
 
-  private filterByClassVisibility(query: SelectQueryBuilder<ClassCategory>, includeHidden: boolean | undefined) {
+  private filterByClassVisibility(
+    query: SelectQueryBuilder<ClassCategory>,
+    includeHidden: boolean | undefined,
+  ) {
     if (!includeHidden) {
       query.andWhere('class.isHidden = :isHidden', { isHidden: false });
     }
@@ -231,7 +251,7 @@ export class ClassCategoryService {
   }
 
   private transformResults(classCategories: any[]): ReturnedClassCategory[] {
-    return classCategories.map(item => this.transformResult(item));
+    return classCategories.map((item) => this.transformResult(item));
   }
 
   private transformResult(classCategory: any): ReturnedClassCategory {
@@ -245,7 +265,27 @@ export class ClassCategoryService {
         id: classCategory.level_id,
         name: classCategory.level_name,
       },
-      classCount: classCategory.classCount
-    } as ReturnedClassCategory
+      classCount: classCategory.classCount,
+    } as ReturnedClassCategory;
+  }
+
+  @Transactional()
+  async insertMultiple(name: string): Promise<ClassCategory[]> {
+    const getAllLevelsPromise = this.levelRepository.find();
+    const savedSubjectPromise = this.subjectRepository.save({
+      name,
+    });
+
+    const [savedSubject, levels] = await Promise.all([
+      savedSubjectPromise,
+      getAllLevelsPromise,
+    ]);
+
+    return this.classCategoryRepository.save(
+      levels.map((level) => ({
+        subject: savedSubject,
+        level,
+      })),
+    );
   }
 }

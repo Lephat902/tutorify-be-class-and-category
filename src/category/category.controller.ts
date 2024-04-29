@@ -47,4 +47,9 @@ export class ClassCategoryController {
   insert(dto: { level: Level; subject: Subject }): Promise<ClassCategory> {
     return this.classCategoryService.insert(dto.level, dto.subject);
   }
+
+  @MessagePattern({ cmd: 'insert_multiple_categories' })
+  insertMultiple(dto: { name: string }): Promise<ClassCategory[]> {
+    return this.classCategoryService.insertMultiple(dto.name);
+  }
 }
