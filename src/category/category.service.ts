@@ -54,6 +54,7 @@ export class ClassCategoryService {
       .select(['classCategory.id', 'subject', 'level']);
 
     this.filterBySearchQuery(query, filters.q);
+    this.filterByIds(query, filters.ids);
 
     if (includeClassCount) {
       query
@@ -105,6 +106,14 @@ export class ClassCategoryService {
             .orWhere('level.name ILIKE :q', { q: `%${q}%` });
         }),
       );
+    }
+  }
+
+  private filterByIds(query: SelectQueryBuilder<ClassCategory>, ids: string[] | undefined) {
+    if (ids?.length) {
+      query.andWhere('classCategory.id IN (:...ids)', {
+        ids
+      });
     }
   }
 
