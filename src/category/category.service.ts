@@ -24,6 +24,7 @@ type ReturnedLevel = Omit<Level, 'classCategories'>;
 type ReturnedSubject = Omit<Subject, 'classCategories'>;
 type ReturnedClassCategory = {
   id: string;
+  slug: string;
   level: ReturnedLevel;
   subject: ReturnedSubject;
   classCount?: number;
@@ -51,10 +52,11 @@ export class ClassCategoryService {
       .createQueryBuilder('classCategory')
       .leftJoin('classCategory.subject', 'subject')
       .leftJoin('classCategory.level', 'level')
-      .select(['classCategory.id', 'subject', 'level']);
+      .select(['classCategory', 'subject', 'level']);
 
     this.filterBySearchQuery(query, filters.q);
     this.filterByIds(query, filters.ids);
+    this.filterBySlugs(query, filters.slugs);
 
     if (includeClassCount) {
       query
@@ -113,6 +115,14 @@ export class ClassCategoryService {
     if (ids?.length) {
       query.andWhere('classCategory.id IN (:...ids)', {
         ids
+      });
+    }
+  }
+
+  private filterBySlugs(query: SelectQueryBuilder<ClassCategory>, slugs: string[] | undefined) {
+    if (slugs?.length) {
+      query.andWhere('classCategory.slug IN (:...slugs)', {
+        slugs
       });
     }
   }
@@ -247,6 +257,7 @@ export class ClassCategoryService {
   private transformResult(classCategory: any): ReturnedClassCategory {
     return {
       id: classCategory.classCategory_id,
+      slug: classCategory.classCategory_slug,
       subject: {
         id: classCategory.subject_id,
         name: classCategory.subject_name,
