@@ -237,9 +237,10 @@ export class ClassCategoryService {
   }
 
   async dispatchEvent(newClassCategory: ClassCategory) {
-    const { id, subject, level } = newClassCategory;
+    const { id, slug, subject, level } = newClassCategory;
     const eventPayload = Builder<ClassCategoryCreatedEventPayload>()
       .classCategoryId(id)
+      .slug(slug)
       .subject(subject)
       .level(level)
       .build();
