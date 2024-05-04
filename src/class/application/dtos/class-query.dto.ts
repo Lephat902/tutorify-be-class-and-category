@@ -29,6 +29,9 @@ export class ClassQueryDto extends IntersectionType(
   readonly wardId: string;
   readonly districtId: string;
   readonly provinceId: string;
+  readonly wardSlug: string;
+  readonly districtSlug: string;
+  readonly provinceSlug: string;
   readonly userIdToGetClasses: string;
   readonly createdAtMin: Date;
   readonly createdAtMax: Date;
