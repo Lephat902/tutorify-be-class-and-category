@@ -16,6 +16,7 @@ export class ClassQueryDto extends IntersectionType(
   readonly order: ClassOrderBy;
   readonly ids: string[];
   readonly classCategoryIds: string[];
+  readonly classCategorySlugs: string[];
   userPreferences: {
     classCategoryIds: string[];
     location: StoredLocation;

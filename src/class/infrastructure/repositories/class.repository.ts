@@ -24,8 +24,11 @@ export class ClassRepository extends Repository<Class> {
     if (locationToOrder)
       this.orderByLocationPriority(classQuery, locationToOrder);
     // classCategoryIds takes precedence over userPreferences.classCategoryIds
-    if (filters?.classCategoryIds) {
-      this.filterByCategoryIds(classQuery, filters.classCategoryIds);
+    if (filters.classCategoryIds?.length || filters.classCategorySlugs?.length) {
+      const isFilteringByIds = !!filters.classCategoryIds?.length;
+      const valueToFilter = isFilteringByIds ? filters.classCategoryIds : filters.classCategorySlugs;
+      const fieldToFilter = isFilteringByIds ? 'id' : 'slug';
+      this.filterByCategories(classQuery, valueToFilter, fieldToFilter);
     } else if (filters?.userPreferences?.classCategoryIds) {
       this.orderByCategoryPriority(classQuery, filters.userPreferences.classCategoryIds)
     }
@@ -82,10 +85,10 @@ export class ClassRepository extends Repository<Class> {
   }
 
   // Get only classes that satisfy classCategoryIds
-  private filterByCategoryIds(query: SelectQueryBuilder<Class>, classCategoryIds: string[] | undefined) {
-    if (classCategoryIds?.length) {
-      query.andWhere('classCategories.id IN (:...classCategoryIds)', {
-        classCategoryIds,
+  private filterByCategories(query: SelectQueryBuilder<Class>, values: string[] | undefined, filterBy: 'id' | 'slug') {
+    if (values?.length) {
+      query.andWhere(`classCategories.${filterBy} IN (:...values)`, {
+        values,
       });
     }
   }
