@@ -3,6 +3,7 @@ import { Class } from 'src/class/infrastructure/entities';
 import { Injectable } from '@nestjs/common';
 import { ClassQueryDto } from 'src/class/application/dtos/class-query.dto';
 import { ClassStatus, StoredLocation } from '@tutorify/shared';
+import { ClassCategory } from 'src/category/entities';
 
 @Injectable()
 export class ClassRepository extends Repository<Class> {
@@ -19,10 +20,6 @@ export class ClassRepository extends Repository<Class> {
     // Apply filters to query
     this.filterByUserId(classQuery, filters.userIdToGetClasses);
     this.filterByIds(classQuery, filters.ids);
-    // Location has higher priority than class category
-    const locationToOrder = filters.location || filters?.userPreferences?.location;
-    if (locationToOrder)
-      this.orderByLocationPriority(classQuery, locationToOrder);
     // classCategoryIds takes precedence over userPreferences.classCategoryIds
     if (filters.classCategoryIds?.length || filters.classCategorySlugs?.length) {
       const isFilteringByIds = !!filters.classCategoryIds?.length;
@@ -32,6 +29,10 @@ export class ClassRepository extends Repository<Class> {
     } else if (filters?.userPreferences?.classCategoryIds) {
       this.orderByCategoryPriority(classQuery, filters.userPreferences.classCategoryIds)
     }
+    // Location has lower priority than class category
+    const locationToOrder = filters.location || filters?.userPreferences?.location;
+    if (locationToOrder)
+      this.orderByLocationPriority(classQuery, locationToOrder);
     this.filterByIsOnline(classQuery, filters.isOnline);
     this.filterBySubjectIds(classQuery, filters?.subjectIds);
     this.filterByLevelIds(classQuery, filters?.levelIds);
@@ -97,15 +98,18 @@ export class ClassRepository extends Repository<Class> {
   private orderByCategoryPriority(query: SelectQueryBuilder<Class>, classCategoryIds: string[] | undefined) {
     // Assuming classCategoryIds is not empty and is relevant to the query
     if (classCategoryIds?.length) {
-      // Apply order by using a CASE statement to prioritize matching category IDs
-      query
-        .addSelect(`(
-          CASE
-            WHEN classCategories.id IN (:...classCategoryIds) THEN 0
-            ELSE 1
-          END)`, "priority")
-        .setParameter("classCategoryIds", classCategoryIds)
-        .addOrderBy("priority", "ASC", "NULLS LAST");
+      // Assuming classCategoryIds is not empty and is relevant to the query
+      if (classCategoryIds?.length) {
+        query.addSelect(subQuery => {
+          return subQuery
+            .select("COUNT(classCategory.id)", "count")
+            .from(ClassCategory, "classCategory")
+            .leftJoin("classCategory.classes", "class1")
+            .andWhere("classCategory.id IN (:...classCategoryIds)", { classCategoryIds })
+            .andWhere("class1.id = class.id")
+        }, `category_count`)
+          .addOrderBy(`category_count`, "DESC");
+      }
     }
   }
 
