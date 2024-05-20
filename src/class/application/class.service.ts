@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ClassCreateDto, ClassUpdateDto } from './dtos';
 import { Class } from '../infrastructure/entities';
-import { CancelClassByIdCommand, CreateClassCommand, UpdateClassCommand } from './commands/impl';
+import { CancelClassByIdCommand, CleanupTestClassesCommand, CreateClassCommand, UpdateClassCommand } from './commands/impl';
 import { DeleteClassByIdCommand } from './commands/impl/delete-class-by-id.command';
 import { ClassQueryDto } from './dtos/class-query.dto';
 import {
@@ -56,5 +56,9 @@ export class ClassService {
     classCategoryId: string,
   ): Promise<number> {
     return this.queryBus.execute(new GetNumberOfClassesByCategoryIdQuery(classCategoryId));
+  }
+
+  async cleanupTestClasses(): Promise<number> {
+    return this.commandBus.execute(new CleanupTestClassesCommand());
   }
 }

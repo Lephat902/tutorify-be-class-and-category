@@ -14,8 +14,8 @@ export class DeleteClassByIdHandler
     private readonly classEventDispatcher: ClassEventDispatcher,
   ) {}
 
-  async execute(query: DeleteClassByIdCommand) {
-    const { id, userMakeRequest } = query;
+  async execute(cmd: DeleteClassByIdCommand) {
+    const { id, userMakeRequest } = cmd;
     const classToDelete = await this.classRepository.findOneBy({ id });
     if (!classToDelete) {
       throw new NotFoundException(`Class with id ${id} not exist`);

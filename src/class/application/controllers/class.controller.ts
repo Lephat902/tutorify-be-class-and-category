@@ -53,4 +53,9 @@ export class ClassController {
   async getNumberOfClassesByCategoryId(classCategoryId: string): Promise<number> {
     return this.classService.getNumberOfClassesByCategoryId(classCategoryId);
   }
+
+  @MessagePattern({ cmd: 'cleanupTestClasses' })
+  async cleanupTestClasses(): Promise<number> {
+    return this.classService.cleanupTestClasses();
+  }
 }
