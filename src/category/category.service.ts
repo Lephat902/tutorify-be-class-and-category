@@ -3,12 +3,6 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { ClassCategory, Level, Subject } from './entities';
-import {
-  ClassCategoryRepository,
-  LevelRepository,
-  SubjectRepository,
-} from './repositories';
 import {
   BroadcastService,
   ClassCategoryCreatedEvent,
@@ -16,9 +10,14 @@ import {
   ClassStatus,
 } from '@tutorify/shared';
 import { Builder } from 'builder-pattern';
-import { ClassCategoryQueryDto } from './dtos';
-import { addGroupByColumns } from './helpers';
 import { Brackets, SelectQueryBuilder } from 'typeorm';
+import { ClassCategoryQueryDto } from './dtos';
+import { ClassCategory, Level, Subject } from './entities';
+import {
+  ClassCategoryRepository,
+  LevelRepository,
+  SubjectRepository,
+} from './repositories';
 
 type ReturnedLevel = Omit<Level, 'classCategories'>;
 type ReturnedSubject = Omit<Subject, 'classCategories'>;
@@ -65,9 +64,9 @@ export class ClassCategoryService {
         .addOrderBy('COUNT(class.id)', 'DESC');
 
       // Required by AGGREGATE function COUNT
-      addGroupByColumns(query, 'classCategory', this.classCategoryRepository);
-      addGroupByColumns(query, 'level', this.levelRepository);
-      addGroupByColumns(query, 'subject', this.subjectRepository);
+      query.addGroupBy('classCategory.id');
+      query.addGroupBy('subject.id');
+      query.addGroupBy('level.id');
 
       this.filterByClassStatuses(query, classStatuses);
       this.filterByClassVisibility(query, includeHiddenClass);
@@ -75,12 +74,6 @@ export class ClassCategoryService {
       if (classCreatedAtMin) {
         query.andWhere('class.createdAt >= :classCreatedAtMin', {
           classCreatedAtMin
-        });
-      }
-
-      if (classCreatedAtMax) {
-        query.andWhere('class.createdAt <= :classCreatedAtMax', {
-          classCreatedAtMax
         });
       }
 
