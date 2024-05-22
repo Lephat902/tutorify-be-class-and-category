@@ -145,7 +145,7 @@ export class ClassRepository extends Repository<Class> {
     }
   }
 
-  private filterBySubjectIds(query: SelectQueryBuilder<Class>, subjectIds: string[] | undefined) {
+  public filterBySubjectIds(query: SelectQueryBuilder<Class>, subjectIds: string[] | undefined) {
     if (subjectIds?.length) {
       query.andWhere('subject.id IN (:...subjectIds)', {
         subjectIds,
@@ -153,7 +153,7 @@ export class ClassRepository extends Repository<Class> {
     }
   }
 
-  private filterByLevelIds(query: SelectQueryBuilder<Class>, levelIds: string[] | undefined) {
+  public filterByLevelIds(query: SelectQueryBuilder<Class>, levelIds: string[] | undefined) {
     if (levelIds?.length) {
       query.andWhere('level.id IN (:...levelIds)', {
         levelIds,

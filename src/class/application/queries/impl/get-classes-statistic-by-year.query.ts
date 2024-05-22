@@ -1,6 +1,6 @@
 import { IQuery } from '@nestjs/cqrs';
-import { ClassStatisticDto } from '../../dtos';
+import { ClassStatisticByYearDto } from '../../dtos';
 
 export class GetClassesStatisticByYearQuery implements IQuery {
-  constructor(public readonly classStatisticDto: ClassStatisticDto) {}
+  constructor(public readonly classStatisticDto: ClassStatisticByYearDto) {}
 }

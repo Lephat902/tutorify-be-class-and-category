@@ -44,8 +44,14 @@ export class ClassCategoryService {
     return this.transformResults(result);
   }
 
-  private buildFindAllQuery(filters: ClassCategoryQueryDto): SelectQueryBuilder<ClassCategory> {
-    const { classStatuses, includeHiddenClass, includeClassCount, classCreatedAtMin, classCreatedAtMax } = filters;
+  private buildFindAllQuery(filters: Partial<ClassCategoryQueryDto>): SelectQueryBuilder<ClassCategory> {
+    const {
+      classStatuses,
+      includeHiddenClass,
+      includeClassCount,
+      classCreatedAtMin,
+      classCreatedAtMax,
+    } = filters;
 
     const query = this.classCategoryRepository
       .createQueryBuilder('classCategory')
@@ -56,12 +62,15 @@ export class ClassCategoryService {
     this.filterBySearchQuery(query, filters.q);
     this.filterByIds(query, filters.ids);
     this.filterBySlugs(query, filters.slugs);
+    this.filterByLevelIds(query, filters.levelIds);
+    this.filterBySubjectIds(query, filters.subjectIds);
 
     if (includeClassCount) {
       query
         .leftJoin('classCategory.classes', 'class')
-        .addSelect('COUNT(class.id)', 'classCount')
-        .addOrderBy('COUNT(class.id)', 'DESC');
+        .addSelect('COUNT(class.id)', 'classCount');
+      if (filters.sortByClassCount)
+        query.addOrderBy('"classCount"', 'DESC');
 
       // Required by AGGREGATE function COUNT
       query.addGroupBy('classCategory.id');
@@ -116,6 +125,22 @@ export class ClassCategoryService {
     if (slugs?.length) {
       query.andWhere('classCategory.slug IN (:...slugs)', {
         slugs
+      });
+    }
+  }
+
+  private filterByLevelIds(query: SelectQueryBuilder<ClassCategory>, levelIds: string[] | undefined) {
+    if (levelIds?.length) {
+      query.andWhere('level.id IN (:...levelIds)', {
+        levelIds
+      });
+    }
+  }
+
+  private filterBySubjectIds(query: SelectQueryBuilder<ClassCategory>, subjectIds: string[] | undefined) {
+    if (subjectIds?.length) {
+      query.andWhere('subject.id IN (:...subjectIds)', {
+        subjectIds
       });
     }
   }

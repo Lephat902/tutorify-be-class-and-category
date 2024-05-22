@@ -2,7 +2,7 @@ import { Controller } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
 import { Class } from '../../infrastructure/entities';
 import { ClassService } from '../class.service';
-import { ClassCreateDto, ClassQueryDto, ClassStatisticDto, ClassUpdateDto } from '../dtos';
+import { ClassCreateDto, ClassQueryDto, ClassStatisticByYearDto, ClassUpdateDto } from '../dtos';
 
 @Controller()
 export class ClassController {
@@ -59,8 +59,8 @@ export class ClassController {
     return this.classService.cleanupTestClasses();
   }
 
-  @MessagePattern({ cmd: 'getClassStatistic' })
-  async getClassStatistic(classStatisticDto: ClassStatisticDto) {
-    return this.classService.getClassStatistic(classStatisticDto);
+  @MessagePattern({ cmd: 'getClassStatisticByYear' })
+  async getClassStatisticByYear(classStatisticDto: ClassStatisticByYearDto) {
+    return this.classService.getClassStatisticByYear(classStatisticDto);
   }
 }
