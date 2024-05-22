@@ -1,8 +1,8 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
-import { ClassService } from '../class.service';
 import { Class } from '../../infrastructure/entities';
-import { ClassCreateDto, ClassUpdateDto, ClassQueryDto } from '../dtos';
+import { ClassService } from '../class.service';
+import { ClassCreateDto, ClassQueryDto, ClassStatisticDto, ClassUpdateDto } from '../dtos';
 
 @Controller()
 export class ClassController {
@@ -57,5 +57,10 @@ export class ClassController {
   @MessagePattern({ cmd: 'cleanupTestClasses' })
   async cleanupTestClasses(): Promise<number> {
     return this.classService.cleanupTestClasses();
+  }
+
+  @MessagePattern({ cmd: 'getClassStatistic' })
+  async getClassStatistic(classStatisticDto: ClassStatisticDto) {
+    return this.classService.getClassStatistic(classStatisticDto);
   }
 }

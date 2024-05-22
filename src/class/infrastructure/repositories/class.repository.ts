@@ -186,7 +186,7 @@ export class ClassRepository extends Repository<Class> {
     }
   }
 
-  private filterByStatuses(query: SelectQueryBuilder<Class>, statuses: ClassStatus[] | undefined) {
+  public filterByStatuses(query: SelectQueryBuilder<Class>, statuses: ClassStatus[] | undefined) {
     if (statuses !== undefined) {
       query.andWhere('class.status IN (:...statuses)', {
         statuses

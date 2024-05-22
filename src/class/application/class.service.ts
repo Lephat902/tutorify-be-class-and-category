@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ClassCreateDto, ClassUpdateDto } from './dtos';
 import { Class } from '../infrastructure/entities';
 import { CancelClassByIdCommand, CleanupTestClassesCommand, CreateClassCommand, UpdateClassCommand } from './commands/impl';
 import { DeleteClassByIdCommand } from './commands/impl/delete-class-by-id.command';
+import { ClassCreateDto, ClassStatisticDto, ClassUpdateDto } from './dtos';
 import { ClassQueryDto } from './dtos/class-query.dto';
 import {
   GetClassByIdQuery,
   GetClassesAndTotalCountQuery,
+  GetClassesStatisticByYearQuery,
   GetNumberOfClassesByCategoryIdQuery,
 } from './queries/impl';
 
@@ -60,5 +61,9 @@ export class ClassService {
 
   async cleanupTestClasses(): Promise<number> {
     return this.commandBus.execute(new CleanupTestClassesCommand());
+  }
+
+  async getClassStatistic(classStatisticDto: ClassStatisticDto) {
+    return this.queryBus.execute(new GetClassesStatisticByYearQuery(classStatisticDto));
   }
 }
