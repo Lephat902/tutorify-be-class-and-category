@@ -9,36 +9,48 @@ export class GetClassesStatisticByYearHandler implements IQueryHandler<GetClasse
 
   async execute(query: GetClassesStatisticByYearQuery) {
     const { classStatisticDto } = query;
-    const { year, timeIntervalOption, statuses, presentationOption } = classStatisticDto;
+    const { year, timeIntervalOption, statuses, presentationOption, shortMonthName } = classStatisticDto;
     const qb = this.classRepository.createQueryBuilder('class');
-  
+
     if (timeIntervalOption === StatisticTimeIntervalOption.QUARTER) {
-      qb.select('EXTRACT(QUARTER FROM class.createdAt) as "timeIntervalIndex"')
+      qb
+        .select('EXTRACT(QUARTER FROM class.createdAt) as "timeIntervalIndexNum"')
+        .addSelect('\'Q\' || EXTRACT(QUARTER FROM class.createdAt) as "timeIntervalIndex"')
         .addSelect('COUNT(class.id)', 'count')
-        .groupBy('"timeIntervalIndex"');
+        .addGroupBy('"timeIntervalIndex"')
+        .addGroupBy('"timeIntervalIndexNum"');
     } else {
-      qb.select('EXTRACT(MONTH FROM class.createdAt) as "timeIntervalIndex"')
+      const monthNameOption = shortMonthName ? 'Mon' : 'Month';
+      qb
+        .select(`TRIM(TO_CHAR(class.createdAt, '${monthNameOption}')) as "timeIntervalIndex"`)
+        .addSelect('EXTRACT(MONTH FROM class.createdAt) as "timeIntervalIndexNum"')
         .addSelect('COUNT(class.id)', 'count')
-        .groupBy('"timeIntervalIndex"');
+        .addGroupBy('"timeIntervalIndex"')
+        .addGroupBy('"timeIntervalIndexNum"');
     }
-  
+
+    qb.orderBy('"timeIntervalIndexNum"', "ASC");
+
     qb.where('EXTRACT(YEAR FROM class.createdAt) = :year', { year });
+
     this.classRepository.filterByStatuses(qb, statuses);
-  
+
     let results = await qb.getRawMany();
-  
+
     if (presentationOption === DataPresentationOption.ACCUMULATION) {
-      results = results.reduce((acc, cur, i) => {
-        const prev = acc[i - 1] ? parseInt(acc[i - 1].count) : 0;
-        const current = parseInt(cur.count);
-        cur.count = (prev + current).toString();
-        acc.push(cur);
-        return acc;
-      }, []);
+      results = this.accumulateResults(results);
     }
-  
-    console.log(results);
-  
+
     return results;
-  }  
+  }
+
+  private accumulateResults(results: any[]) {
+    return results.reduce((acc, cur, i) => {
+      const prev = acc[i - 1] ? parseInt(acc[i - 1].count) : 0;
+      const current = parseInt(cur.count);
+      cur.count = (prev + current).toString();
+      acc.push(cur);
+      return acc;
+    }, []);
+  }
 }
