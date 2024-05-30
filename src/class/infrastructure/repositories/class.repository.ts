@@ -163,12 +163,30 @@ export class ClassRepository extends Repository<Class> {
 
   private filterBySearchQuery(query: SelectQueryBuilder<Class>, q: string | undefined) {
     if (q) {
-      query.andWhere(
-        new Brackets((qb) => {
-          qb.where('class.description ILIKE :q', { q: `%${q}%` })
-            .orWhere('class.title ILIKE :q', { q: `%${q}%` });
-        }),
-      );
+      const tsQueryTerm = q
+        .split(' ')
+        .map(word => word + ':*')
+        .join('|');
+
+      query
+        .addSelect(
+          '(ts_rank_cd(to_tsvector(title), to_tsquery(:language, :q)) + ts_rank_cd(to_tsvector(requirement), to_tsquery(:language, :q)) + ts_rank_cd(to_tsvector(description), to_tsquery(:language, :q)))',
+          'overall_rank'
+        )
+        .andWhere(new Brackets(qb => {
+          qb
+            .orWhere(
+              'to_tsquery(:language, :q) @@ to_tsvector(description)',
+            )
+            .orWhere(
+              'to_tsquery(:language, :q) @@ to_tsvector(requirement)',
+            )
+            .orWhere(
+              'to_tsquery(:language, :q) @@ to_tsvector(title)',
+            )
+        }))
+        .setParameters({ language: 'simple', q: tsQueryTerm })
+        .addOrderBy('overall_rank', "DESC");
     }
   }
 
